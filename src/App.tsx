@@ -4,7 +4,9 @@ import { EinkCanvas } from './components/EinkCanvas'
 import { Gallery } from './components/Gallery'
 import { PhoneMock, type UiAction } from './components/PhoneMock'
 import { ContextPanels } from './components/ContextPanels'
-import { loadDeviceContext, type DeviceContext } from './lib/deviceContext'
+import { SyncCard, getLastSync, recordLastSync } from './components/SyncCard'
+import { loadDeviceContext, saveDeviceContext, toTemplateCtx, type DeviceContext } from './lib/deviceContext'
+import { runSync, type DataSource } from './lib/syncer'
 import type { CatalogEntry } from './lib/catalog'
 
 interface Session {
@@ -15,12 +17,22 @@ interface Session {
   manifest: unknown
 }
 
+/** Manifests are `unknown` until validated; this is the same defensive-parse pattern as ContextPanels. */
+function getDataSource(manifest: unknown): DataSource | null {
+  if (!manifest || typeof manifest !== 'object') return null
+  const ds = (manifest as Record<string, unknown>).data_source
+  if (!ds || typeof ds !== 'object') return null
+  return ds as DataSource
+}
+
 function App() {
   const [png, setPng] = useState<Uint8Array | null>(null)
   const [published, setPublished] = useState<Record<string, unknown>>({})
   const [log, setLog] = useState<string[]>([])
   const [session, setSession] = useState<Session | null>(null)
   const [dc, setDc] = useState<DeviceContext>(() => loadDeviceContext())
+  const [lastSync, setLastSync] = useState<number | null>(null)
+  const [syncError, setSyncError] = useState<string | null>(null)
   const emulatorRef = useRef<Emulator | null>(null)
 
   useEffect(() => {
@@ -61,6 +73,8 @@ function App() {
       setSession({ files, entry, meta, ui: files.ui, manifest: files.manifest })
       setPng(emulator.framePng())
       setPublished(emulator.published())
+      setLastSync(getLastSync(meta.name))
+      setSyncError(null)
       emulator.startInterval()
       setLog((prev) => [...prev, `loaded ${meta.name}`])
     } catch (err) {
@@ -73,6 +87,27 @@ function App() {
     setSession(null)
     setPng(null)
     setPublished({})
+    setLastSync(null)
+    setSyncError(null)
+  }
+
+  async function handleSync() {
+    const emulator = emulatorRef.current
+    const ds = session && getDataSource(session.manifest)
+    if (!emulator || !session || !ds) return
+    setSyncError(null)
+    const ctx = toTemplateCtx(dc, published, {})
+    try {
+      const envelope = await runSync(ds, ctx)
+      await emulator.push(envelope)
+      recordLastSync(session.meta.name)
+      setLastSync(getLastSync(session.meta.name))
+      setLog((prev) => [...prev, 'synced'])
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      setSyncError(message)
+      setLog((prev) => [...prev, `sync error: ${message}`])
+    }
   }
 
   function handleAction(action: UiAction) {
@@ -85,10 +120,11 @@ function App() {
       case 'request_permission': {
         const next = { ...dc, permissions: { ...dc.permissions, [action.name]: true } }
         setDc(next)
+        saveDeviceContext(next)
         break
       }
       case 'sync':
-        // TODO(Task 12): wire SyncCard's fetch-and-push pipeline here.
+        void handleSync()
         break
       case 'set_local':
         // Handled entirely inside PhoneMock; never bubbles up.
@@ -120,6 +156,15 @@ function App() {
         <div className="studio-right">
           {session ? (
             <>
+              {getDataSource(session.manifest) && (
+                <SyncCard
+                  ds={getDataSource(session.manifest)!}
+                  ctx={toTemplateCtx(dc, published, {})}
+                  lastSync={lastSync}
+                  onSync={handleSync}
+                  error={syncError}
+                />
+              )}
               {session.ui ? (
                 <PhoneMock ui={session.ui} published={published} dc={dc} onAction={handleAction} />
               ) : (

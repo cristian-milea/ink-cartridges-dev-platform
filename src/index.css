@@ -145,3 +145,34 @@ body {
 .status-error {
   color: #b91c1c;
 }
+
+.sync-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.sync-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sync-card-status {
+  color: #444;
+  font-size: 13px;
+}
+
+.sync-card-reason {
+  color: #7c4a03;
+  font-size: 12px;
+  margin: 6px 0 0;
+}
+
+.sync-card-error {
+  color: #b91c1c;
+  font-size: 12px;
+  margin: 6px 0 0;
+}
