@@ -7,6 +7,8 @@ export interface GalleryProps {
     files: CartridgeFiles & { manifest?: unknown; ui?: unknown; manifestRaw: string; uiRaw?: string },
     entry: CatalogEntry
   ) => void
+  /** True while the Pyodide runtime is still starting up — Load would be a silent no-op. */
+  disabled?: boolean
 }
 
 function needsSecrets(entry: CatalogEntry): boolean {
@@ -30,7 +32,7 @@ async function downloadTemplate(entry: CatalogEntry): Promise<void> {
   if (c.uiRaw) download(`${c.stem}.ui.json`, c.uiRaw)
 }
 
-export function Gallery({ onSelect }: GalleryProps) {
+export function Gallery({ onSelect, disabled = false }: GalleryProps) {
   const [entries, setEntries] = useState<CatalogEntry[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loadingName, setLoadingName] = useState<string | null>(null)
@@ -74,6 +76,7 @@ export function Gallery({ onSelect }: GalleryProps) {
 
   return (
     <div className="gallery">
+      {disabled && <p className="status">Starting runtime…</p>}
       {[...byCategory.entries()].map(([category, apps]) => (
         <section key={category} className="gallery-category">
           <h2>{category}</h2>
@@ -90,7 +93,7 @@ export function Gallery({ onSelect }: GalleryProps) {
                 </div>
                 <p className="gallery-description">{entry.description}</p>
                 <div className="gallery-card-actions">
-                  <button onClick={() => select(entry)} disabled={loadingName === entry.name}>
+                  <button onClick={() => select(entry)} disabled={disabled || loadingName === entry.name}>
                     {loadingName === entry.name ? 'Loading…' : 'Load'}
                   </button>
                   <button onClick={() => downloadTemplate(entry)}>Use as template</button>

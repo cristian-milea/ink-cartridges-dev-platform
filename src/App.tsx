@@ -32,6 +32,7 @@ function getDataSource(manifest: unknown): DataSource | null {
 }
 
 function App() {
+  const [emulatorReady, setEmulatorReady] = useState(false)
   const [png, setPng] = useState<Uint8Array | null>(null)
   const [published, setPublished] = useState<Record<string, unknown>>({})
   const [log, setLog] = useState<string[]>([])
@@ -60,6 +61,7 @@ function App() {
           setPng(frame)
           setPublished(pub)
         }
+        setEmulatorReady(true)
         appendLog('pyodide ready')
       })
       // Surface init failures (CDN load, loadPackage, font/host_alias fetch,
@@ -221,8 +223,8 @@ function App() {
             </div>
           ) : (
             <>
-              <LocalBridge onFiles={handleLocalFiles} />
-              <Gallery onSelect={handleSelect} />
+              <LocalBridge onFiles={handleLocalFiles} disabled={!emulatorReady} />
+              <Gallery onSelect={handleSelect} disabled={!emulatorReady} />
             </>
           )}
         </div>

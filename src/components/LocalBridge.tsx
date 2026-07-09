@@ -29,6 +29,8 @@ export interface LocalFiles {
 
 export interface LocalBridgeProps {
   onFiles: (files: LocalFiles) => void
+  /** True while the Pyodide runtime is still starting up — loading files would be a silent no-op. */
+  disabled?: boolean
 }
 
 interface Handles {
@@ -83,7 +85,7 @@ export function sameMtimes(a: ReadResult['mtimes'], b: ReadResult['mtimes']): bo
   return a.py === b.py && a.manifest === b.manifest && a.ui === b.ui
 }
 
-export function LocalBridge({ onFiles }: LocalBridgeProps) {
+export function LocalBridge({ onFiles, disabled = false }: LocalBridgeProps) {
   const [supported] = useState(() => typeof window.showDirectoryPicker === 'function')
   const [watching, setWatching] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -155,6 +157,7 @@ export function LocalBridge({ onFiles }: LocalBridgeProps) {
 
   async function handleDrop(e: React.DragEvent<HTMLDivElement>): Promise<void> {
     e.preventDefault()
+    if (disabled) return
     setError(null)
     const dropped = Array.from(e.dataTransfer.files)
     const pyFile = dropped.find((f) => isAppFile(f.name))
@@ -176,12 +179,19 @@ export function LocalBridge({ onFiles }: LocalBridgeProps) {
     <div className="local-bridge">
       {supported ? (
         <div className="local-bridge-row">
-          <button onClick={() => void pickFolder()}>Open local folder</button>
+          <button onClick={() => void pickFolder()} disabled={disabled}>
+            Open local folder
+          </button>
           {watching && <span className="local-bridge-status">watching {watching}/</span>}
+          {disabled && <span className="local-bridge-status">Starting runtime…</span>}
         </div>
       ) : (
         <div className="local-bridge-dropzone" onDragOver={(e) => e.preventDefault()} onDrop={(e) => void handleDrop(e)}>
-          {watching ? `loaded ${watching} — re-drop to refresh` : 'Drop cartridge files here (.py + optional manifest/ui json)'}
+          {disabled
+            ? 'Starting runtime…'
+            : watching
+              ? `loaded ${watching} — re-drop to refresh`
+              : 'Drop cartridge files here (.py + optional manifest/ui json)'}
         </div>
       )}
       {error && <p className="status status-error">{error}</p>}
