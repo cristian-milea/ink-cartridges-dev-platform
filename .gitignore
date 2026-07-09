@@ -26,3 +26,8 @@ dist-ssr
 # scratch / test output
 .superpowers/scratch/
 test-results/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
