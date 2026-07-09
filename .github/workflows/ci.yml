@@ -1,0 +1,38 @@
+name: ci
+on:
+  push: { branches: [master] }
+  pull_request:
+  schedule: [{ cron: "17 6 * * *" }]   # daily — catches upstream host changes
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+      - run: npm run test
+      - run: npm run build
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: { repository: cristian-milea/ink-cartridges, path: upstream }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pillow pytest
+      - run: pytest tests -v
+        env:
+          INK_CARTRIDGES_DIR: ${{ github.workspace }}/upstream
+          STUDIO_FONTS_DIR: ${{ github.workspace }}/public/fonts
