@@ -13,3 +13,135 @@ body {
   background: #e8e6e0;
   image-rendering: pixelated;
 }
+
+.studio-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.studio-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.studio-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.studio-left,
+.studio-right {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.studio-left {
+  flex: 2;
+}
+
+.studio-right {
+  flex: 1;
+  border-left: 1px solid #ddd;
+}
+
+.cartridge-session {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.console-pane {
+  background: #111;
+  color: #9f9;
+  padding: 8px;
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+
+.gallery-category h2 {
+  text-transform: capitalize;
+  font-size: 16px;
+  margin: 16px 0 8px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.gallery-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gallery-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gallery-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #333;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gallery-name {
+  font-weight: 600;
+}
+
+.gallery-meta {
+  font-size: 12px;
+  color: #777;
+}
+
+.gallery-description {
+  font-size: 13px;
+  color: #444;
+  flex: 1;
+}
+
+.gallery-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.badge {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.badge-secrets {
+  background: #fde68a;
+  color: #7c4a03;
+}
+
+.status {
+  color: #666;
+  padding: 8px 0;
+}
+
+.status-error {
+  color: #b91c1c;
+}
