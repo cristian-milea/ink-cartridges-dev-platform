@@ -6,3 +6,10 @@
 body {
   margin: 0;
 }
+
+.eink {
+  border: 8px solid #cfcdc6;
+  border-radius: 4px;
+  background: #e8e6e0;
+  image-rendering: pixelated;
+}
