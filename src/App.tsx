@@ -18,21 +18,23 @@ function App() {
   const emulatorRef = useRef<Emulator | null>(null)
 
   useEffect(() => {
+    // React 19 StrictMode double-invokes effects in dev; the `cancelled` flag
+    // discards the throwaway first Emulator. Intentional — do not "fix".
     let cancelled = false
     const appendLog = (line: string) => setLog((prev) => [...prev, line])
 
-    Emulator.create(appendLog).then(async (emulator) => {
-      if (cancelled) return
-      emulatorRef.current = emulator
-      emulator.onFrame = (frame) => setPng(frame)
-      appendLog('pyodide ready')
-      try {
+    Emulator.create(appendLog)
+      .then(async (emulator) => {
+        if (cancelled) return
+        emulatorRef.current = emulator
+        emulator.onFrame = (frame) => setPng(frame)
+        appendLog('pyodide ready')
         const meta = await emulator.load({ py: TEST_CARTRIDGE, stem: 'hello' })
         appendLog(`loaded ${meta.name}`)
-      } catch (err) {
-        appendLog(String(err))
-      }
-    })
+      })
+      // Surface init failures (CDN load, loadPackage, font/host_alias fetch,
+      // or load()) in the log pane instead of an unhandled rejection.
+      .catch((err) => appendLog(String(err)))
 
     return () => {
       cancelled = true
