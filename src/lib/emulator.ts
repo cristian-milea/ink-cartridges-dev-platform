@@ -69,6 +69,7 @@ export class Emulator {
   private intervalSec: number | null = null
   private lastPng: Uint8Array = new Uint8Array()
   private lastPublished: Record<string, unknown> = {}
+  private validatorLoaded = false
   onFrame: (png: Uint8Array, published: Record<string, unknown>) => void = () => {}
   private onLog: (line: string) => void
 
@@ -160,8 +161,31 @@ export class Emulator {
     }
   }
 
-  // Task 13 fills this in with a real static-analysis pass.
-  async runValidator(_files: Record<string, string>): Promise<string[]> {
-    return []
+  /** Run the real CI validator (validate_cartridges.py) against candidate files under Pyodide. */
+  async runValidator(files: Record<string, string>): Promise<string[]> {
+    if (!this.validatorLoaded) {
+      const src = await (await fetch(`${RAW_BASE}validate_cartridges.py`)).text()
+      this.py.FS.mkdirTree('/repo')
+      this.py.FS.writeFile('/repo/validate_cartridges.py', src)
+      this.validatorLoaded = true
+    }
+    this.py.runPython(`
+import json, os, shutil, sys
+if '/repo' not in sys.path: sys.path.insert(0, '/repo')
+shutil.rmtree('/repo/apps', ignore_errors=True)
+_files = json.loads(${JSON.stringify(JSON.stringify(files))})
+# validate_cartridge() requires the candidate dir basename == manifest.name,
+# so name the dir after the cartridge's .py stem (matches the repo's apps/<name>/ layout).
+_stem = next(f[:-3] for f in _files if f.endswith('.py'))
+_dir = f'/repo/apps/{_stem}'
+os.makedirs(_dir)
+for fname, content in _files.items():
+    with open(f'{_dir}/{fname}', 'w') as f: f.write(content)
+import importlib, validate_cartridges
+importlib.reload(validate_cartridges)
+_name, _errors = validate_cartridges.validate_cartridge(_dir)
+_errors_json = json.dumps(list(_errors))
+`)
+    return JSON.parse(this.py.runPython('_errors_json') as string)
   }
 }

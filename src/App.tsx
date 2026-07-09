@@ -5,6 +5,7 @@ import { Gallery } from './components/Gallery'
 import { PhoneMock, type UiAction } from './components/PhoneMock'
 import { ContextPanels } from './components/ContextPanels'
 import { SyncCard, getLastSync, recordLastSync } from './components/SyncCard'
+import { ValidationPanel } from './components/ValidationPanel'
 import { loadDeviceContext, saveDeviceContext, toTemplateCtx, type DeviceContext } from './lib/deviceContext'
 import { runSync, type DataSource } from './lib/syncer'
 import type { CatalogEntry } from './lib/catalog'
@@ -15,6 +16,8 @@ interface Session {
   meta: CartridgeMeta
   ui: unknown
   manifest: unknown
+  manifestRaw: string
+  uiRaw?: string
 }
 
 /** Manifests are `unknown` until validated; this is the same defensive-parse pattern as ContextPanels. */
@@ -62,7 +65,7 @@ function App() {
   }, [])
 
   async function handleSelect(
-    files: CartridgeFiles & { manifest?: unknown; ui?: unknown },
+    files: CartridgeFiles & { manifest?: unknown; ui?: unknown; manifestRaw: string; uiRaw?: string },
     entry: CatalogEntry
   ) {
     const emulator = emulatorRef.current
@@ -70,7 +73,15 @@ function App() {
     setLog((prev) => [...prev, `loading ${entry.name}…`])
     try {
       const meta = await emulator.load(files)
-      setSession({ files, entry, meta, ui: files.ui, manifest: files.manifest })
+      setSession({
+        files,
+        entry,
+        meta,
+        ui: files.ui,
+        manifest: files.manifest,
+        manifestRaw: files.manifestRaw,
+        uiRaw: files.uiRaw,
+      })
       setPng(emulator.framePng())
       setPublished(emulator.published())
       setLastSync(getLastSync(meta.name))
@@ -156,6 +167,14 @@ function App() {
         <div className="studio-right">
           {session ? (
             <>
+              <ValidationPanel
+                emulator={emulatorRef.current}
+                files={{
+                  [`${session.files.stem}.py`]: session.files.py,
+                  [`${session.files.stem}.manifest.json`]: session.manifestRaw,
+                  ...(session.uiRaw ? { [`${session.files.stem}.ui.json`]: session.uiRaw } : {}),
+                }}
+              />
               {getDataSource(session.manifest) && (
                 <SyncCard
                   ds={getDataSource(session.manifest)!}

@@ -3,7 +3,10 @@ import { fetchCatalog, fetchCartridge, type CatalogEntry } from '../lib/catalog'
 import type { CartridgeFiles } from '../lib/emulator'
 
 export interface GalleryProps {
-  onSelect: (files: CartridgeFiles & { manifest?: unknown; ui?: unknown }, entry: CatalogEntry) => void
+  onSelect: (
+    files: CartridgeFiles & { manifest?: unknown; ui?: unknown; manifestRaw: string; uiRaw?: string },
+    entry: CatalogEntry
+  ) => void
 }
 
 function needsSecrets(entry: CatalogEntry): boolean {
