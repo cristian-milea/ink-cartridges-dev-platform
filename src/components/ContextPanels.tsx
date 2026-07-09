@@ -36,11 +36,11 @@ function Section({
   children: ReactNode
 }) {
   return (
-    <div className="border rounded">
-      <button onClick={onToggle} className="w-full px-4 py-2 text-left font-semibold hover:bg-gray-100">
+    <div className="context-section">
+      <button onClick={onToggle} className="context-section-header">
         {title} {collapsed ? '▶' : '▼'}
       </button>
-      {!collapsed && <div className="px-4 py-3 space-y-2 bg-gray-50">{children}</div>}
+      {!collapsed && <div className="context-section-body">{children}</div>}
     </div>
   )
 }
@@ -92,22 +92,22 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
   const secrets = getManifestSecrets()
 
   return (
-    <div className="space-y-4">
+    <div className="context-panels">
       <Section title="Location" collapsed={collapsed.location} onToggle={() => toggleSection('location')}>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="context-field-row">
           <input
             type="text"
             placeholder="Latitude"
             value={dc.location.lat ?? ''}
             onChange={(e) => updateLocation('lat', e.target.value)}
-            className="px-2 py-1 border rounded text-sm"
+            className="context-input"
           />
           <input
             type="text"
             placeholder="Longitude"
             value={dc.location.lon ?? ''}
             onChange={(e) => updateLocation('lon', e.target.value)}
-            className="px-2 py-1 border rounded text-sm"
+            className="context-input"
           />
         </div>
         <input
@@ -115,15 +115,11 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
           placeholder="Label"
           value={dc.location.label ?? ''}
           onChange={(e) => updateLocation('label', e.target.value)}
-          className="w-full px-2 py-1 border rounded text-sm"
+          className="context-input context-input-full"
         />
-        <div className="space-y-1">
+        <div className="context-presets">
           {PRESETS.map((preset) => (
-            <button
-              key={preset.label}
-              onClick={() => applyPreset(preset)}
-              className="w-full px-2 py-1 text-sm bg-blue-100 hover:bg-blue-200 rounded"
-            >
+            <button key={preset.label} onClick={() => applyPreset(preset)} className="context-preset-button">
               {preset.label}
             </button>
           ))}
@@ -132,24 +128,24 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
 
       <Section title="Secrets" collapsed={collapsed.secrets} onToggle={() => toggleSection('secrets')}>
         {secrets.length === 0 ? (
-          <p className="text-sm text-gray-500">No secrets required</p>
+          <p className="context-empty">No secrets required</p>
         ) : (
           secrets.map((secret) => {
             const isRequired = !secret.optional
             const isSet = Boolean(dc.secrets[secret.key])
             return (
-              <div key={secret.key} className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">{secret.label}</label>
-                  {isRequired && !isSet && <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">needed</span>}
+              <div key={secret.key} className="context-secret-row">
+                <div className="context-secret-label-row">
+                  <label className="context-secret-label">{secret.label}</label>
+                  {isRequired && !isSet && <span className="badge context-needed-badge">needed</span>}
                 </div>
-                {secret.description && <p className="text-xs text-gray-600">{secret.description}</p>}
+                {secret.description && <p className="context-secret-description">{secret.description}</p>}
                 <input
                   type="password"
                   placeholder="Enter value..."
                   value={dc.secrets[secret.key] ?? ''}
                   onChange={(e) => updateSecret(secret.key, e.target.value)}
-                  className="w-full px-2 py-1 border rounded text-sm"
+                  className="context-input context-input-full"
                 />
               </div>
             )
@@ -159,7 +155,7 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
 
       <Section title="Permissions" collapsed={collapsed.permissions} onToggle={() => toggleSection('permissions')}>
         {PERMISSIONS.map((name) => (
-          <label key={name} className="flex items-center gap-2 text-sm">
+          <label key={name} className="context-permission-row">
             <input
               type="checkbox"
               checked={dc.permissions[name] ?? false}

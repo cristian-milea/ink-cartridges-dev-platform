@@ -46,6 +46,7 @@ function App() {
   const [validationTrigger, setValidationTrigger] = useState<number | undefined>(undefined)
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null)
   const emulatorRef = useRef<Emulator | null>(null)
+  const ds = session ? getDataSource(session.manifest) : null
 
   useEffect(() => {
     // React 19 StrictMode double-invokes effects in dev; the `cancelled` flag
@@ -152,7 +153,7 @@ function App() {
   }
 
   function handleBack() {
-    emulatorRef.current?.stopInterval()
+    emulatorRef.current?.clearSession()
     setSession(null)
     setPng(null)
     setPublished({})
@@ -164,7 +165,6 @@ function App() {
 
   async function handleSync() {
     const emulator = emulatorRef.current
-    const ds = session && getDataSource(session.manifest)
     if (!emulator || !session || !ds) return
     setSyncError(null)
     const ctx = toTemplateCtx(dc, published, {})
@@ -242,9 +242,9 @@ function App() {
                 onResult={setValidationResult}
               />
               <SubmitPanel validation={validationResult} name={session.meta.name} />
-              {getDataSource(session.manifest) && (
+              {ds && (
                 <SyncCard
-                  ds={getDataSource(session.manifest)!}
+                  ds={ds}
                   ctx={toTemplateCtx(dc, published, {})}
                   lastSync={lastSync}
                   onSync={handleSync}

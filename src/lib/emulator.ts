@@ -169,6 +169,13 @@ export class Emulator {
     }
   }
 
+  /** Stop repainting and release the current session's PyProxy (e.g. on navigating back to the gallery). */
+  clearSession(): void {
+    this.stopInterval()
+    this.session?.destroy()
+    this.session = null
+  }
+
   /** Run the real CI validator (validate_cartridges.py) against candidate files under Pyodide. */
   async runValidator(files: Record<string, string>): Promise<string[]> {
     if (!this.validatorLoaded) {
