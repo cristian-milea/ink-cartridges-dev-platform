@@ -6,21 +6,33 @@ export interface ValidationPanelProps {
   files: Record<string, string>
   /** Bump this (e.g. after a local-bridge reload) to trigger an automatic re-check. */
   trigger?: number
+  /** Fires whenever the result changes, so a parent (e.g. SubmitPanel gating) can reuse it without re-running validation. */
+  onResult?: (result: ValidationResult) => void
 }
 
-type Result = { status: 'idle' } | { status: 'checking' } | { status: 'valid' } | { status: 'invalid'; errors: string[] } | { status: 'error'; message: string }
+export type ValidationResult =
+  | { status: 'idle' }
+  | { status: 'checking' }
+  | { status: 'valid' }
+  | { status: 'invalid'; errors: string[] }
+  | { status: 'error'; message: string }
 
-export function ValidationPanel({ emulator, files, trigger }: ValidationPanelProps) {
-  const [result, setResult] = useState<Result>({ status: 'idle' })
+export function ValidationPanel({ emulator, files, trigger, onResult }: ValidationPanelProps) {
+  const [result, setResult] = useState<ValidationResult>({ status: 'idle' })
+
+  function update(next: ValidationResult) {
+    setResult(next)
+    onResult?.(next)
+  }
 
   async function check() {
     if (!emulator) return
-    setResult({ status: 'checking' })
+    update({ status: 'checking' })
     try {
       const errors = await emulator.runValidator(files)
-      setResult(errors.length === 0 ? { status: 'valid' } : { status: 'invalid', errors })
+      update(errors.length === 0 ? { status: 'valid' } : { status: 'invalid', errors })
     } catch (err) {
-      setResult({ status: 'error', message: err instanceof Error ? err.message : String(err) })
+      update({ status: 'error', message: err instanceof Error ? err.message : String(err) })
     }
   }
 

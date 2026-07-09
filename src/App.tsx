@@ -6,7 +6,8 @@ import { LocalBridge, type LocalFiles } from './components/LocalBridge'
 import { PhoneMock, type UiAction } from './components/PhoneMock'
 import { ContextPanels } from './components/ContextPanels'
 import { SyncCard, getLastSync, recordLastSync } from './components/SyncCard'
-import { ValidationPanel } from './components/ValidationPanel'
+import { ValidationPanel, type ValidationResult } from './components/ValidationPanel'
+import { SubmitPanel } from './components/SubmitPanel'
 import { loadDeviceContext, saveDeviceContext, toTemplateCtx, type DeviceContext } from './lib/deviceContext'
 import { runSync, type DataSource } from './lib/syncer'
 import type { CatalogEntry } from './lib/catalog'
@@ -42,6 +43,7 @@ function App() {
   // Undefined until the first local-bridge reload — ValidationPanel only
   // auto-checks once this is bumped, so a plain gallery load stays as before.
   const [validationTrigger, setValidationTrigger] = useState<number | undefined>(undefined)
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null)
   const emulatorRef = useRef<Emulator | null>(null)
 
   useEffect(() => {
@@ -93,6 +95,7 @@ function App() {
       setLastSync(getLastSync(meta.name))
       setSyncError(null)
       setReloadedAt(null)
+      setValidationResult(null)
       emulator.startInterval()
       setLog((prev) => [...prev, `loaded ${meta.name}`])
     } catch (err) {
@@ -154,6 +157,7 @@ function App() {
     setLastSync(null)
     setSyncError(null)
     setReloadedAt(null)
+    setValidationResult(null)
   }
 
   async function handleSync() {
@@ -233,7 +237,9 @@ function App() {
                   ...(session.uiRaw ? { [`${session.files.stem}.ui.json`]: session.uiRaw } : {}),
                 }}
                 trigger={validationTrigger}
+                onResult={setValidationResult}
               />
+              <SubmitPanel validation={validationResult} name={session.meta.name} />
               {getDataSource(session.manifest) && (
                 <SyncCard
                   ds={getDataSource(session.manifest)!}
