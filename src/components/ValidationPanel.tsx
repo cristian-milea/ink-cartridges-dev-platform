@@ -25,6 +25,9 @@ export function ValidationPanel({ emulator, files, trigger }: ValidationPanelPro
   }
 
   useEffect(() => {
+    // Deps are intentionally just `trigger`: re-check only when the parent
+    // explicitly bumps it (e.g. a Task 14 local-bridge reload), NOT on every
+    // `files`/`check` identity change, which would fire on each keystroke edit.
     if (trigger !== undefined) void check()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trigger])

@@ -174,10 +174,18 @@ import json, os, shutil, sys
 if '/repo' not in sys.path: sys.path.insert(0, '/repo')
 shutil.rmtree('/repo/apps', ignore_errors=True)
 _files = json.loads(${JSON.stringify(JSON.stringify(files))})
-# validate_cartridge() requires the candidate dir basename == manifest.name,
-# so name the dir after the cartridge's .py stem (matches the repo's apps/<name>/ layout).
+# validate_cartridge() requires the candidate dir basename == manifest.name.
+# Manifest name may be hyphenated while the .py stem is underscored
+# (e.g. tide-sun/tide_sun.py), so derive the dir from manifest.name; fall back
+# to the .py stem for a malformed manifest so its real errors still surface.
 _stem = next(f[:-3] for f in _files if f.endswith('.py'))
-_dir = f'/repo/apps/{_stem}'
+_dirname = _stem
+try:
+    _mf = next(c for f, c in _files.items() if f.endswith('.manifest.json'))
+    _dirname = json.loads(_mf).get('name') or _stem
+except (StopIteration, ValueError, TypeError):
+    pass
+_dir = f'/repo/apps/{_dirname}'
 os.makedirs(_dir)
 for fname, content in _files.items():
     with open(f'{_dir}/{fname}', 'w') as f: f.write(content)
