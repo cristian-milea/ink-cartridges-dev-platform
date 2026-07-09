@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { resolveString, resolveJson } from '../lib/template'
 import { evalWhen } from '../lib/whenLogic'
 import { toTemplateCtx, type DeviceContext } from '../lib/deviceContext'
+import { Dpad } from './Dpad'
 
 export type UiAction =
   | { type: 'push'; payload: unknown }
@@ -302,6 +303,8 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
           </select>
         )
       }
+      case 'dpad':
+        return <Dpad key={key} node={node} onAction={(action) => fire(action)} />
       case 'when': {
         const branch = evalWhen(node.if, ctx) ? node.then : node.else
         return <div key={key}>{renderChildren(branch, `${key}.w`)}</div>
