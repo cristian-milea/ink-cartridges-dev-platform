@@ -39,6 +39,17 @@ test('when re-evaluates on local change (switch)', () => {
   expect(screen.getByText('BETTING')).toBeTruthy()
 })
 
+test('switch action resolves against post-toggle local (not stale value)', () => {
+  const actions: UiAction[] = []
+  const ui = { type: 'column', children: [
+    { type: 'switch', local: 'on', label: 'On', default: false,
+      action_on: { type: 'push', payload: { enabled: '{{local.on}}' } } },
+  ]}
+  render(<PhoneMock ui={ui} published={{}} dc={dc} onAction={(a) => actions.push(a)} />)
+  fireEvent.click(screen.getByRole('checkbox'))
+  expect(actions).toEqual([{ type: 'push', payload: { enabled: 'true' } }])
+})
+
 test('unknown widget type renders placeholder, does not crash', () => {
   render(<PhoneMock ui={{ type: 'hologram' }} published={{}} dc={dc} onAction={noop} />)
   expect(screen.getByText(/unsupported widget/i)).toBeTruthy()

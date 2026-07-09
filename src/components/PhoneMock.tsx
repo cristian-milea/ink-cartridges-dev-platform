@@ -64,19 +64,24 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
 
   const ctx = toTemplateCtx(dc, published, localState)
 
-  function fire(action: unknown) {
+  // `localOverride` lets a handler that mutates local state AND fires an action
+  // in the same tick resolve against the post-update value (setState is async,
+  // so the closure `ctx`/`localState` would otherwise be one toggle stale).
+  function fire(action: unknown, localOverride?: Record<string, unknown>) {
     const node = asNode(action)
     if (!node) return
+    const fireCtx = localOverride ? toTemplateCtx(dc, published, localOverride) : ctx
+    const nextLocal = localOverride ?? localState
     const type = str(node, 'type')
     if (type === 'set_local') {
       const key = str(node, 'key')
       if (!key) return
-      const value = resolveJson(node.value, ctx)
+      const value = resolveJson(node.value, fireCtx)
       setLocalState((prev) => ({ ...prev, [key]: value }))
       return
     }
-    const resolved = resolveJson(node, ctx) as UiAction
-    onAction(resolved, localState)
+    const resolved = resolveJson(node, fireCtx) as UiAction
+    onAction(resolved, nextLocal)
   }
 
   function setLocal(key: string, value: unknown) {
@@ -219,7 +224,10 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
                 const next = e.target.checked
                 if (localKey) setLocal(localKey, next)
                 const action = next ? node.action_on : node.action_off
-                if (action) fire(action)
+                if (action) {
+                  const merged = localKey ? { ...localState, [localKey]: next } : localState
+                  fire(action, merged)
+                }
               }}
             />
             {str(node, 'label')}
@@ -231,8 +239,11 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
         const value = localKey && typeof localState[localKey] === 'number'
           ? (localState[localKey] as number)
           : (num(node, 'default') ?? num(node, 'min') ?? 0)
-        const release = () => {
-          if (node.action) fire(node.action)
+        const release = (e: React.SyntheticEvent<HTMLInputElement>) => {
+          if (!node.action) return
+          const current = Number(e.currentTarget.value)
+          const merged = localKey ? { ...localState, [localKey]: current } : localState
+          fire(node.action, merged)
         }
         return (
           <input
