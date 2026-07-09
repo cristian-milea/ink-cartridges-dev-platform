@@ -1,5 +1,4 @@
-import { decodeFetched, buildEnvelope, locationFromCtx, checkNeeds, runSync } from './syncer'
-import { type DataSource } from './syncer'
+import { decodeFetched, buildEnvelope, locationFromCtx, checkNeeds, runSync, type DataSource } from './syncer'
 import { EMPTY_CTX, type TemplateCtx } from './template'
 
 const locCtx: TemplateCtx = { ...EMPTY_CTX, location: { lat: '50.8', lon: '-0.1', label: 'Brighton' } }

@@ -1,5 +1,4 @@
-import { resolveString } from './template'
-import { type TemplateCtx } from './template'
+import { resolveString, type TemplateCtx } from './template'
 
 export interface DataSource {
   type: string; method?: string; url: string; format?: string

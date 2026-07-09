@@ -10,4 +10,6 @@ test('var over local/state scopes', () => {
 test('fail-closed on garbage', () => {
   expect(evalWhen({ frobnicate: [1] }, ctx)).toBe(false)
   expect(evalWhen(undefined, ctx)).toBe(false)
+  expect(evalWhen('garbage', ctx)).toBe(false)
+  expect(evalWhen({}, ctx)).toBe(false)
 })
