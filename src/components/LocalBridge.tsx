@@ -79,7 +79,7 @@ async function readAll(handles: Handles): Promise<ReadResult> {
   }
 }
 
-function sameMtimes(a: ReadResult['mtimes'], b: ReadResult['mtimes']): boolean {
+export function sameMtimes(a: ReadResult['mtimes'], b: ReadResult['mtimes']): boolean {
   return a.py === b.py && a.manifest === b.manifest && a.ui === b.ui
 }
 
@@ -90,6 +90,12 @@ export function LocalBridge({ onFiles }: LocalBridgeProps) {
   const intervalRef = useRef<number | null>(null)
   const handlesRef = useRef<Handles | null>(null)
   const lastMtimesRef = useRef<ReadResult['mtimes']>({ py: 0 })
+  // Bumped on every re-pick and on unmount. Each async op (poll tick, initial
+  // read-on-pick) captures the generation before awaiting and bails without
+  // firing onFiles if it changed while the await was in flight — otherwise a
+  // stale read from the previous folder (or after unmount) would clobber the
+  // current session.
+  const generationRef = useRef(0)
 
   function stopPolling(): void {
     if (intervalRef.current !== null) {
@@ -98,36 +104,50 @@ export function LocalBridge({ onFiles }: LocalBridgeProps) {
     }
   }
 
-  // Stop the poll on unmount only — a new pick calls stopPolling() itself
-  // before starting a fresh interval, so this never leaks.
-  useEffect(() => stopPolling, [])
+  // Stop the poll and invalidate any in-flight async on unmount. A new pick
+  // bumps the generation + calls stopPolling() itself, so nothing leaks.
+  useEffect(
+    () => () => {
+      generationRef.current++
+      stopPolling()
+    },
+    []
+  )
 
   async function poll(): Promise<void> {
     const handles = handlesRef.current
     if (!handles) return
+    const generation = generationRef.current
     try {
       const result = await readAll(handles)
+      if (generation !== generationRef.current) return // re-picked or unmounted mid-read
       if (sameMtimes(result.mtimes, lastMtimesRef.current)) return
       lastMtimesRef.current = result.mtimes
       onFiles(result.files)
     } catch (err) {
+      if (generation !== generationRef.current) return
       setError(err instanceof Error ? err.message : String(err))
     }
   }
 
   async function pickFolder(): Promise<void> {
     setError(null)
+    // Invalidate any prior folder's in-flight reads before we start.
+    generationRef.current++
+    stopPolling()
+    const generation = generationRef.current
     try {
       const dir = await window.showDirectoryPicker!()
       const handles = await scanDir(dir)
-      stopPolling()
-      handlesRef.current = handles
       const result = await readAll(handles)
+      if (generation !== generationRef.current) return // re-picked/unmounted during the awaits
+      handlesRef.current = handles
       lastMtimesRef.current = result.mtimes
       setWatching(dir.name)
       onFiles(result.files)
       intervalRef.current = window.setInterval(() => void poll(), POLL_MS)
     } catch (err) {
+      if (generation !== generationRef.current) return
       if (err instanceof DOMException && err.name === 'AbortError') return // user cancelled the picker
       setError(err instanceof Error ? err.message : String(err))
     }

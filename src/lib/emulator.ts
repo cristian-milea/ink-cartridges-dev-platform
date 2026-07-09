@@ -99,15 +99,23 @@ export class Emulator {
   }
 
   async load(files: CartridgeFiles): Promise<CartridgeMeta> {
-    this.stopInterval()
+    // Build the new session into a LOCAL var first. Only on success do we tear
+    // down the old one. If load() throws (e.g. a hot-reload with a syntax
+    // error), the previous good session + its running repaint interval are left
+    // fully intact — the caller only logs the error, so the old cartridge keeps
+    // live-repainting. Do NOT stopInterval() up here.
     const session = this.studioHost.Session()
     let metaProxy: PyProxy
     try {
       metaProxy = session.load(files.py, files.stem)
     } catch (err) {
-      session.destroy()
+      session.destroy() // destroy ONLY the half-built new proxy; keep this.session
       throw new Error(pyErrorMessage(err))
     }
+    // New session is good — now swap: stop the old interval, destroy the old
+    // proxy, install the new one. Caller calls startInterval() next (which
+    // stops any prior interval first, so this is belt-and-braces).
+    this.stopInterval()
     this.session?.destroy()
     this.session = session
     const meta = dictToObject<CartridgeMeta>(metaProxy)
