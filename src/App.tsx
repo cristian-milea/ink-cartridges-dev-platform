@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Emulator, type CartridgeFiles, type CartridgeMeta } from './lib/emulator'
 import { EinkCanvas } from './components/EinkCanvas'
 import { Gallery } from './components/Gallery'
+import { LocalBridge, type LocalFiles } from './components/LocalBridge'
 import { PhoneMock, type UiAction } from './components/PhoneMock'
 import { ContextPanels } from './components/ContextPanels'
 import { SyncCard, getLastSync, recordLastSync } from './components/SyncCard'
@@ -12,7 +13,8 @@ import type { CatalogEntry } from './lib/catalog'
 
 interface Session {
   files: CartridgeFiles
-  entry: CatalogEntry
+  /** Absent for a local-folder session — there's no catalog entry to speak of. */
+  entry: CatalogEntry | null
   meta: CartridgeMeta
   ui: unknown
   manifest: unknown
@@ -36,6 +38,10 @@ function App() {
   const [dc, setDc] = useState<DeviceContext>(() => loadDeviceContext())
   const [lastSync, setLastSync] = useState<number | null>(null)
   const [syncError, setSyncError] = useState<string | null>(null)
+  const [reloadedAt, setReloadedAt] = useState<string | null>(null)
+  // Undefined until the first local-bridge reload — ValidationPanel only
+  // auto-checks once this is bumped, so a plain gallery load stays as before.
+  const [validationTrigger, setValidationTrigger] = useState<number | undefined>(undefined)
   const emulatorRef = useRef<Emulator | null>(null)
 
   useEffect(() => {
@@ -86,8 +92,55 @@ function App() {
       setPublished(emulator.published())
       setLastSync(getLastSync(meta.name))
       setSyncError(null)
+      setReloadedAt(null)
       emulator.startInterval()
       setLog((prev) => [...prev, `loaded ${meta.name}`])
+    } catch (err) {
+      setLog((prev) => [...prev, String(err)])
+    }
+  }
+
+  /** LocalBridge fires this on the initial folder pick and on every detected file change. */
+  async function handleLocalFiles(local: LocalFiles) {
+    const emulator = emulatorRef.current
+    if (!emulator) return
+
+    let manifest: unknown
+    let ui: unknown
+    try {
+      manifest = local.manifestRaw ? JSON.parse(local.manifestRaw) : undefined
+    } catch (err) {
+      setLog((prev) => [...prev, `manifest.json parse error: ${String(err)}`])
+    }
+    try {
+      ui = local.uiRaw ? JSON.parse(local.uiRaw) : undefined
+    } catch (err) {
+      setLog((prev) => [...prev, `ui.json parse error: ${String(err)}`])
+    }
+
+    const files: CartridgeFiles = { py: local.py, stem: local.stem, manifest, ui }
+    try {
+      // On failure, everything below is skipped — the previous session/png/log
+      // (last good frame) is left exactly as-is, per the design constraint.
+      const meta = await emulator.load(files)
+      setSession({
+        files,
+        entry: null,
+        meta,
+        ui,
+        manifest,
+        manifestRaw: local.manifestRaw ?? '',
+        uiRaw: local.uiRaw,
+      })
+      setPng(emulator.framePng())
+      setPublished(emulator.published())
+      setLastSync(getLastSync(meta.name))
+      setSyncError(null)
+      emulator.startInterval()
+      const stamp = new Date().toLocaleTimeString()
+      setReloadedAt(stamp)
+      setLog((prev) => [...prev, `reloaded ${meta.name} ${stamp}`])
+      setValidationTrigger((t) => (t ?? 0) + 1)
     } catch (err) {
       setLog((prev) => [...prev, String(err)])
     }
@@ -100,6 +153,7 @@ function App() {
     setPublished({})
     setLastSync(null)
     setSyncError(null)
+    setReloadedAt(null)
   }
 
   async function handleSync() {
@@ -158,10 +212,14 @@ function App() {
           {session ? (
             <div className="cartridge-session">
               <EinkCanvas png={png} />
+              {reloadedAt && <p className="local-bridge-status">reloaded {reloadedAt}</p>}
               <pre className="console-pane">{log.join('\n')}</pre>
             </div>
           ) : (
-            <Gallery onSelect={handleSelect} />
+            <>
+              <LocalBridge onFiles={handleLocalFiles} />
+              <Gallery onSelect={handleSelect} />
+            </>
           )}
         </div>
         <div className="studio-right">
@@ -174,6 +232,7 @@ function App() {
                   [`${session.files.stem}.manifest.json`]: session.manifestRaw,
                   ...(session.uiRaw ? { [`${session.files.stem}.ui.json`]: session.uiRaw } : {}),
                 }}
+                trigger={validationTrigger}
               />
               {getDataSource(session.manifest) && (
                 <SyncCard

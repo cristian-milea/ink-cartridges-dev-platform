@@ -142,6 +142,30 @@ body {
   padding: 8px 0;
 }
 
+.local-bridge {
+  margin-bottom: 16px;
+}
+
+.local-bridge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.local-bridge-status {
+  font-size: 12px;
+  color: #666;
+}
+
+.local-bridge-dropzone {
+  border: 2px dashed #bbb;
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
+
 .status-error {
   color: #b91c1c;
 }
