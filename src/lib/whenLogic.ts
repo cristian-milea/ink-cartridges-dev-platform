@@ -1,5 +1,5 @@
 import jsonLogic from 'json-logic-js'
-import type { TemplateCtx } from './template'
+import { type TemplateCtx } from './template'
 
 export function evalWhen(rule: unknown, ctx: TemplateCtx): boolean {
   if (rule === null || rule === undefined) return false

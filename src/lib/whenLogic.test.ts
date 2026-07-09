@@ -1,5 +1,5 @@
 import { evalWhen } from './whenLogic'
-import { TemplateCtx } from './template'
+import type { TemplateCtx } from './template'
 
 const ctx: TemplateCtx = { state: { bank: 90 }, local: { bets_on: true }, secret: {}, location: {} }
 

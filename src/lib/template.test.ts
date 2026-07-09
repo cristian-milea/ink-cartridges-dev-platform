@@ -1,4 +1,5 @@
-import { resolveString, resolveJson, TemplateCtx } from './template'
+import { resolveString, resolveJson } from './template'
+import type { TemplateCtx } from './template'
 
 const ctx: TemplateCtx = {
   state: { count: 42, msg: 'hi' },
