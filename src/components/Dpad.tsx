@@ -58,19 +58,6 @@ export function Dpad({ node, onAction }: DpadProps) {
       className="dpad"
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
-      style={{
-        width: 160,
-        height: 160,
-        margin: '0 auto',
-        border: '2px solid currentColor',
-        borderRadius: 12,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 48,
-        userSelect: 'none',
-        touchAction: 'none',
-      }}
     >
       {lastDirection ? ARROWS[lastDirection] : '+'}
     </div>

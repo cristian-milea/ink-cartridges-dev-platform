@@ -1,0 +1,36 @@
+/* Colour names map 1:1 onto ios/InkCartridge/Theme/InkPalette.swift.
+   Keep them that way — src/lib/palette.test.ts diffs the two files. */
+:root {
+  color-scheme: light dark;
+
+  --paper:     #F2EEE5;   --paper-dim: #E0DBCD;
+  --ink:       #1A1815;   --ink-dim:   #5C564B;
+  --red:       #C23B22;   --yellow:    #D4A017;
+
+  /* Red *text* on a paper surface. Plain --red is 3.85:1 on --paper-dim,
+     below AA. Value is Color.kt's EinkRedDim, which Kotlin never uses. */
+  --red-dim:   #8A2A18;
+
+  /* Text that sits on --yellow. --yellow does not invert between schemes, so
+     its foreground must not either: plain --ink would flip to near-white in
+     dark mode and land at 1.50:1 on the yellow fill. Same value as light --ink.
+     Ratios on --yellow: 7.46:1 light, 10.17:1 dark. */
+  --ink-on-yellow: #1A1815;
+
+  --hairline: 1.5px;   /* Eink.kt HairlineWidth (1.5dp): the app's only border weight. Web uses for secondary visual weight: badges, dividers, inset panels. */
+  --rule:     3px;     /* Web-only pixel-bevel: does not exist in Eink.kt. */
+  --bevel:    4px;     /* hard shadow offset; never blurred */
+
+  --font-body:  'VT323', monospace;
+  --font-stamp: 'PressStart2P', var(--font-body);
+  --font-code:  'DejaVuSansMono', ui-monospace, Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #131210;   --paper-dim: #1E1B17;
+    --ink:   #F2EEE5;   --ink-dim:   #8A8478;
+    --red:   #E25E45;   --yellow:    #F0BD3F;
+    --red-dim: var(--red);   /* #E25E45 already clears AA: 5.28 / 4.84 */
+  }
+}

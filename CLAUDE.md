@@ -114,14 +114,40 @@ test to pass.** CI (`.github/workflows/ci.yml`) runs `web` (vitest+build), `drif
 (clones upstream, runs pytest), and `e2e` (Playwright), plus a daily cron so
 upstream host changes surface even with no activity here.
 
+**Palette drift guard** — same idea, one layer up: `src/lib/palette.test.ts`
+diffs `src/styles/tokens.css` against `ink-cartridge-app`'s
+`ios/InkCartridge/Theme/InkPalette.swift` and `Color.kt`, so the studio's
+colours can't quietly drift from the native apps'. It needs
+`INK_CARTRIDGE_APP_DIR` pointing at a **local checkout** of that sibling repo
+(same "fetched/checked-out, never vendored" rule as `INK_CARTRIDGES_DIR`
+above) and **skips** without it, so `npm run test` stays green either way:
+
+```sh
+INK_CARTRIDGE_APP_DIR=/path/to/ink-cartridge-app npm run test -- palette
+```
+
 ## Constraints when editing
 
 - TypeScript **strict** + `verbatimModuleSyntax` are on — use `import type` for
   type-only imports. Effectively one justified `any` exists (the `PyProxy`
   escape hatch in `emulator.ts`).
-- Components use **semantic classNames defined in `src/index.css`** (`.sync-card`,
-  `.gallery-card`, `.phone-mock`, …). There is **no Tailwind** — do not use
-  utility classes.
+- Styling is a three-layer cascade, the first two `@import`-ed at the top of
+  `src/index.css`: **`src/styles/tokens.css`** (colour/spacing/font custom
+  properties, declared once in `:root` and overridden for dark in a
+  `prefers-color-scheme: dark` block) → **`src/styles/primitives.css`** (the
+  `.ink-*` vocabulary — `.ink-panel`, `.ink-btn`, `.ink-field`, `.ink-badge`,
+  `.ink-section-header`, `.ink-divider` — ported from the app's `Eink.kt`) →
+  **`src/index.css`** (layout plus the remaining semantic classNames —
+  `.sync-card`, `.gallery-card`, `.phone-mock`, …). Components compose `.ink-*`
+  primitives with their own semantic class, e.g. `className="ink-panel
+  submit-panel"`. There is **no Tailwind** — do not use utility classes.
+- **The e-ink invariant.** Never `filter`, `opacity`, `mix-blend-mode`, or
+  `backdrop-filter` on `.eink` or any of its ancestors, and never any
+  `image-rendering` value other than `pixelated`. Any of these can blend a
+  crisp black/white pixel into an intermediate grey, which is not how the
+  physical e-ink display renders. `e2e/eink-fidelity.spec.ts` enforces this by
+  reading every canvas pixel under both colour schemes and asserting only pure
+  black and pure white are present.
 - Fonts are DejaVu Sans Mono 2.37 in `public/fonts/` (bundling assets is fine;
   bundling *code* from `ink-cartridges` is not).
 

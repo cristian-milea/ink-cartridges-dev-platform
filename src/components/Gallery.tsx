@@ -75,28 +75,37 @@ export function Gallery({ onSelect, disabled = false }: GalleryProps) {
   }
 
   return (
-    <div className="gallery">
+    <div>
       {disabled && <p className="status">Starting runtime…</p>}
       {[...byCategory.entries()].map(([category, apps]) => (
         <section key={category} className="gallery-category">
           <h2>{category}</h2>
           <div className="gallery-grid">
             {apps.map((entry) => (
-              <div key={entry.name} className="gallery-card">
+              <div key={entry.name} className="ink-panel gallery-card">
                 <div className="gallery-card-header">
-                  <span className="gallery-icon">{entry.icon}</span>
+                  <span className="gallery-icon">
+                    <img src="/img/game_cartridge.png" alt="" />
+                    <span className="gallery-icon-monogram">{entry.icon.slice(0, 2).toUpperCase()}</span>
+                  </span>
                   <div>
                     <div className="gallery-name">{entry.name}</div>
                     <div className="gallery-meta">v{entry.version} · {entry.author}</div>
                   </div>
-                  {needsSecrets(entry) && <span className="badge badge-secrets">needs secrets</span>}
+                  {needsSecrets(entry) && <span className="ink-badge ink-badge--yellow">needs secrets</span>}
                 </div>
                 <p className="gallery-description">{entry.description}</p>
                 <div className="gallery-card-actions">
-                  <button onClick={() => select(entry)} disabled={disabled || loadingName === entry.name}>
+                  <button
+                    onClick={() => select(entry)}
+                    disabled={disabled || loadingName === entry.name}
+                    className="ink-btn"
+                  >
                     {loadingName === entry.name ? 'Loading…' : 'Load'}
                   </button>
-                  <button onClick={() => downloadTemplate(entry)}>Use as template</button>
+                  <button onClick={() => downloadTemplate(entry)} className="ink-btn ink-btn--ghost">
+                    Use as template
+                  </button>
                 </div>
               </div>
             ))}

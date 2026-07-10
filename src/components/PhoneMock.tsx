@@ -125,7 +125,7 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
         )
       case 'divider':
         return (
-          <hr key={key} style={{ borderTopWidth: num(node, 'thickness') ?? 1 }} />
+          <hr key={key} className="ink-divider" style={{ height: num(node, 'thickness') ?? 1 }} />
         )
       case 'text': {
         const value = str(node, 'value') ?? ''
@@ -203,10 +203,11 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
       }
       case 'button': {
         const label = str(node, 'label') ?? ''
+        const variant = str(node, 'style') === 'secondary' ? 'ink-btn ink-btn--ghost' : 'ink-btn'
         return (
           <button
             key={key}
-            className={str(node, 'style') ?? 'primary'}
+            className={variant}
             onClick={() => fire(node.action)}
           >
             {resolveString(label, ctx)}
@@ -240,6 +241,11 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
         const value = localKey && typeof localState[localKey] === 'number'
           ? (localState[localKey] as number)
           : (num(node, 'default') ?? num(node, 'min') ?? 0)
+        const min = num(node, 'min') ?? 0
+        const max = num(node, 'max') ?? 100
+        const pct = max > min ? Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100)) : 0
+        // CSSProperties has no index signature for custom properties, hence the cast.
+        const trackStyle = { '--pct': `${pct}%` } as React.CSSProperties
         const release = (e: React.SyntheticEvent<HTMLInputElement>) => {
           if (!node.action) return
           const current = Number(e.currentTarget.value)
@@ -254,6 +260,7 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
             max={num(node, 'max')}
             step={num(node, 'step')}
             value={value}
+            style={trackStyle}
             onChange={(e) => {
               if (localKey) setLocal(localKey, Number(e.target.value))
             }}
@@ -269,6 +276,7 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
         return (
           <input
             key={key}
+            className="ink-field"
             type={isNumber ? 'number' : 'text'}
             value={(value as string | number | undefined) ?? ''}
             onChange={(e) => {
@@ -285,6 +293,7 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
         return (
           <select
             key={key}
+            className="ink-field"
             value={value ?? ''}
             onChange={(e) => {
               if (localKey) setLocal(localKey, e.target.value)

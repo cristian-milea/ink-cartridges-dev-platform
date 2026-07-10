@@ -45,14 +45,18 @@ export function ValidationPanel({ emulator, files, trigger, onResult }: Validati
   }, [trigger])
 
   return (
-    <div className="validation-panel">
+    <div className="ink-panel validation-panel">
       <div className="validation-panel-row">
         <span className="validation-panel-title">CI validator</span>
-        <button onClick={() => void check()} disabled={!emulator || result.status === 'checking'}>
+        <button
+          onClick={() => void check()}
+          disabled={!emulator || result.status === 'checking'}
+          className="ink-btn"
+        >
           {result.status === 'checking' ? 'Checking…' : 'Check cartridge'}
         </button>
       </div>
-      {result.status === 'valid' && <p className="validation-panel-valid">✓ valid</p>}
+      {result.status === 'valid' && <p><span className="ink-badge ink-badge--ink">valid</span></p>}
       {result.status === 'invalid' && (
         <ul className="validation-panel-errors">
           {result.errors.map((e, i) => (

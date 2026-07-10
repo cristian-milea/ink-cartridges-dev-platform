@@ -10,7 +10,7 @@ export interface SubmitPanelProps {
 
 function Panel({ children }: { children: ReactNode }) {
   return (
-    <div className="submit-panel">
+    <div className="ink-panel submit-panel">
       <span className="submit-panel-title">Submit to the catalog</span>
       {children}
     </div>
@@ -31,7 +31,7 @@ function CopyButton({ text }: { text: string }) {
   }
 
   return (
-    <button className="submit-panel-copy" onClick={() => void copy()}>
+    <button className="ink-btn ink-btn--ghost submit-panel-copy" onClick={() => void copy()}>
       {copied ? 'Copied!' : 'Copy'}
     </button>
   )
@@ -79,7 +79,7 @@ export function SubmitPanel({ validation, name }: SubmitPanelProps) {
 
   return (
     <Panel>
-      <p className="validation-panel-valid">✓ validated — ready to submit</p>
+      <p><span className="ink-badge ink-badge--ink">validated</span> ready to submit</p>
 
       <ol className="submit-panel-steps">
         <li>

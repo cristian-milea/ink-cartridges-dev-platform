@@ -179,7 +179,7 @@ export function LocalBridge({ onFiles, disabled = false }: LocalBridgeProps) {
     <div className="local-bridge">
       {supported ? (
         <div className="local-bridge-row">
-          <button onClick={() => void pickFolder()} disabled={disabled}>
+          <button onClick={() => void pickFolder()} disabled={disabled} className="ink-btn">
             Open local folder
           </button>
           {watching && <span className="local-bridge-status">watching {watching}/</span>}

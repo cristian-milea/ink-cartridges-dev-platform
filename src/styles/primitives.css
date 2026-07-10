@@ -1,0 +1,79 @@
+/* The .ink-* vocabulary, ported from ui/common/Eink.kt.
+   Construction is the pixel-bevel: 3px border + 4px hard unblurred offset. */
+
+@font-face { font-family: 'VT323';          src: url('/fonts/VT323-Regular.ttf') format('truetype');        font-display: swap; }
+@font-face { font-family: 'PressStart2P';   src: url('/fonts/PressStart2P-Regular.ttf') format('truetype'); font-display: swap; }
+/* Free — emulator.ts:86 already fetches this URL for the Pyodide FS. */
+@font-face { font-family: 'DejaVuSansMono'; src: url('/fonts/DejaVuSansMono.ttf') format('truetype');       font-display: swap; }
+
+.ink-panel {                                   /* = EinkPanel */
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--rule) solid var(--ink);
+  border-radius: 0;
+  box-shadow: var(--bevel) var(--bevel) 0 0 var(--ink);
+  padding: 12px;
+}
+.ink-panel--inset {                            /* nested: no shadow inside a shadow */
+  background: var(--paper-dim);
+  border: var(--hairline) solid var(--ink);
+  box-shadow: none;
+}
+
+.ink-btn {                                     /* = EinkButton, ui.json style "primary" */
+  font: 9px/1 var(--font-stamp);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--ink);
+  color: var(--paper);
+  border: var(--rule) solid var(--ink);
+  border-radius: 0;
+  box-shadow: var(--bevel) var(--bevel) 0 0 var(--ink);
+  padding: 10px 16px;
+  cursor: pointer;
+}
+.ink-btn:active:not(:disabled) {               /* the press: element drops onto its shadow */
+  transform: translate(var(--bevel), var(--bevel));
+  box-shadow: none;
+}
+.ink-btn:disabled      { opacity: .4; cursor: default; }   /* Eink.kt: alpha = 0.4f */
+.ink-btn:focus-visible { outline: var(--rule) solid var(--red); outline-offset: 2px; }
+.ink-btn--ghost        { background: var(--paper); color: var(--ink); }  /* = EinkButtonOutlined, "secondary" */
+
+.ink-field {
+  font: 20px/1.2 var(--font-body);
+  background: var(--paper-dim);
+  color: var(--ink);
+  border: var(--rule) solid var(--ink);
+  border-radius: 0;
+  padding: 6px 10px;
+}
+.ink-field::placeholder  { color: var(--ink-dim); text-transform: uppercase; }
+.ink-field:focus-visible { outline: var(--rule) solid var(--red); outline-offset: 0; }
+
+.ink-badge {                                   /* = EinkBadge: secondary border weight for visual hierarchy */
+  display: inline-block;
+  font: 9px/1 var(--font-stamp);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--hairline) solid var(--ink);
+  border-radius: 0;
+  padding: 3px 6px;
+}
+.ink-badge--ink    { background: var(--ink);    color: var(--paper); }   /* success = absence of red */
+.ink-badge--red    { background: var(--red);    color: var(--paper); }
+.ink-badge--yellow { background: var(--yellow); color: var(--ink-on-yellow); }
+
+.ink-section-header {                          /* = EinkSectionHeader, the punchcard strip */
+  font: 11px/1.6 var(--font-stamp);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 6px 12px;
+}
+
+/* margin: 0 because the only consumer is a bare <hr>, which the UA margins. */
+.ink-divider { height: var(--hairline); margin: 0; background: var(--ink); border: 0; }

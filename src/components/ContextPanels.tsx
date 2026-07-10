@@ -45,11 +45,11 @@ function Section({
   children: ReactNode
 }) {
   return (
-    <div className="context-section">
-      <button onClick={onToggle} className="context-section-header">
+    <div className="ink-panel context-section">
+      <button onClick={onToggle} className="ink-section-header context-section-header">
         {title} {collapsed ? '▶' : '▼'}
       </button>
-      {!collapsed && <div className="context-section-body">{children}</div>}
+      {!collapsed && <div className="ink-panel--inset context-section-body">{children}</div>}
     </div>
   )
 }
@@ -92,14 +92,14 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
             placeholder="Latitude"
             value={dc.location.lat ?? ''}
             onChange={(e) => updateLocation('lat', e.target.value)}
-            className="context-input"
+            className="ink-field"
           />
           <input
             type="text"
             placeholder="Longitude"
             value={dc.location.lon ?? ''}
             onChange={(e) => updateLocation('lon', e.target.value)}
-            className="context-input"
+            className="ink-field"
           />
         </div>
         <input
@@ -107,11 +107,15 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
           placeholder="Label"
           value={dc.location.label ?? ''}
           onChange={(e) => updateLocation('label', e.target.value)}
-          className="context-input context-input-full"
+          className="ink-field context-input-full"
         />
         <div className="context-presets">
           {PRESETS.map((preset) => (
-            <button key={preset.label} onClick={() => applyPreset(preset)} className="context-preset-button">
+            <button
+              key={preset.label}
+              onClick={() => applyPreset(preset)}
+              className="ink-btn ink-btn--ghost context-preset-button"
+            >
               {preset.label}
             </button>
           ))}
@@ -129,7 +133,7 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
               <div key={secret.key} className="context-secret-row">
                 <div className="context-secret-label-row">
                   <label className="context-secret-label">{secret.label}</label>
-                  {isRequired && !isSet && <span className="badge context-needed-badge">needed</span>}
+                  {isRequired && !isSet && <span className="ink-badge ink-badge--red">needed</span>}
                 </div>
                 {secret.description && <p className="context-secret-description">{secret.description}</p>}
                 <input
@@ -137,7 +141,7 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
                   placeholder="Enter value..."
                   value={dc.secrets[secret.key] ?? ''}
                   onChange={(e) => updateSecret(secret.key, e.target.value)}
-                  className="context-input context-input-full"
+                  className="ink-field context-input-full"
                 />
               </div>
             )
