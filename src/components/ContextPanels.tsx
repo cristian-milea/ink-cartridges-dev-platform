@@ -1,19 +1,10 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import type { DeviceContext } from '../lib/deviceContext'
-import { saveDeviceContext } from '../lib/deviceContext'
 
 interface ContextPanelsProps {
   dc: DeviceContext
   onChange: (ctx: DeviceContext) => void
-  manifest?: unknown
-}
-
-interface ManifestSecret {
-  key: string
-  label: string
-  description?: string
-  optional?: boolean
 }
 
 const PRESETS = [
@@ -23,15 +14,6 @@ const PRESETS = [
 ]
 
 const PERMISSIONS = ['location', 'notifications', 'network']
-
-function getManifestSecrets(manifest: unknown): ManifestSecret[] {
-  if (!manifest || typeof manifest !== 'object') return []
-  const m = manifest as Record<string, unknown>
-  if (!m.requires || typeof m.requires !== 'object') return []
-  const requires = m.requires as Record<string, unknown>
-  if (!Array.isArray(requires.secrets)) return []
-  return requires.secrets.filter((s) => s && typeof s === 'object' && 'key' in s && 'label' in s) as ManifestSecret[]
-}
 
 function Section({
   title,
@@ -54,10 +36,9 @@ function Section({
   )
 }
 
-export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
+export function ContextPanels({ dc, onChange }: ContextPanelsProps) {
   const [collapsed, setCollapsed] = useState({
     location: false,
-    secrets: false,
     permissions: false,
   })
 
@@ -67,7 +48,6 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
 
   const commit = (updated: DeviceContext) => {
     onChange(updated)
-    saveDeviceContext(updated)
   }
 
   const updateLocation = (key: string, value: string) =>
@@ -76,12 +56,8 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
   const applyPreset = (preset: (typeof PRESETS)[0]) =>
     commit({ ...dc, location: { ...dc.location, lat: preset.lat, lon: preset.lon, label: preset.label } })
 
-  const updateSecret = (key: string, value: string) => commit({ ...dc, secrets: { ...dc.secrets, [key]: value } })
-
   const updatePermission = (name: string, value: boolean) =>
     commit({ ...dc, permissions: { ...dc.permissions, [name]: value } })
-
-  const secrets = getManifestSecrets(manifest)
 
   return (
     <div className="context-panels">
@@ -120,33 +96,6 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
             </button>
           ))}
         </div>
-      </Section>
-
-      <Section title="Secrets" collapsed={collapsed.secrets} onToggle={() => toggleSection('secrets')}>
-        {secrets.length === 0 ? (
-          <p className="context-empty">No secrets required</p>
-        ) : (
-          secrets.map((secret) => {
-            const isRequired = !secret.optional
-            const isSet = Boolean(dc.secrets[secret.key])
-            return (
-              <div key={secret.key} className="context-secret-row">
-                <div className="context-secret-label-row">
-                  <label className="context-secret-label">{secret.label}</label>
-                  {isRequired && !isSet && <span className="ink-badge ink-badge--red">needed</span>}
-                </div>
-                {secret.description && <p className="context-secret-description">{secret.description}</p>}
-                <input
-                  type="password"
-                  placeholder="Enter value..."
-                  value={dc.secrets[secret.key] ?? ''}
-                  onChange={(e) => updateSecret(secret.key, e.target.value)}
-                  className="ink-field context-input-full"
-                />
-              </div>
-            )
-          })
-        )}
       </Section>
 
       <Section title="Permissions" collapsed={collapsed.permissions} onToggle={() => toggleSection('permissions')}>

@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
-import { fetchCatalog, fetchCartridge, type CatalogEntry } from '../lib/catalog'
+import { useState } from 'react'
+import { fetchCartridge, type CatalogEntry } from '../lib/catalog'
 import type { CartridgeFiles } from '../lib/emulator'
 
 export interface GalleryProps {
+  /** Catalog entries, fetched and owned by the parent. */
+  entries: CatalogEntry[]
   onSelect: (
     files: CartridgeFiles & { manifest?: unknown; ui?: unknown; manifestRaw: string; uiRaw?: string },
     entry: CatalogEntry
@@ -25,34 +27,16 @@ function download(filename: string, content: string): void {
   URL.revokeObjectURL(url)
 }
 
-async function downloadTemplate(entry: CatalogEntry): Promise<void> {
+export async function downloadTemplate(entry: CatalogEntry): Promise<void> {
   const c = await fetchCartridge(entry)
   download(`${c.stem}.py`, c.py)
   download(`${c.stem}.manifest.json`, c.manifestRaw)
   if (c.uiRaw) download(`${c.stem}.ui.json`, c.uiRaw)
 }
 
-export function Gallery({ onSelect, disabled = false }: GalleryProps) {
-  const [entries, setEntries] = useState<CatalogEntry[] | null>(null)
+export function Gallery({ entries, onSelect, disabled = false }: GalleryProps) {
   const [error, setError] = useState<string | null>(null)
   const [loadingName, setLoadingName] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    fetchCatalog()
-      .then((apps) => {
-        if (!cancelled) setEntries(apps)
-      })
-      .catch((err) => {
-        if (!cancelled) setError(String(err))
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  if (error) return <p className="status status-error">Failed to load catalog: {error}</p>
-  if (!entries) return <p className="status">Loading catalog…</p>
 
   const byCategory = new Map<string, CatalogEntry[]>()
   for (const entry of entries) {
@@ -91,6 +75,7 @@ export function Gallery({ onSelect, disabled = false }: GalleryProps) {
                   <div>
                     <div className="gallery-name">{entry.name}</div>
                     <div className="gallery-meta">v{entry.version} · {entry.author}</div>
+                    <div className="gallery-meta gallery-category-tag">{entry.category}</div>
                   </div>
                   {needsSecrets(entry) && <span className="ink-badge ink-badge--yellow">needs secrets</span>}
                 </div>

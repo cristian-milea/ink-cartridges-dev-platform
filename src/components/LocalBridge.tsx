@@ -25,12 +25,16 @@ export interface LocalFiles {
   stem: string
   manifestRaw?: string
   uiRaw?: string
+  origin: 'local-folder' | 'local-drop'
 }
 
 export interface LocalBridgeProps {
   onFiles: (files: LocalFiles) => void
   /** True while the Pyodide runtime is still starting up — loading files would be a silent no-op. */
   disabled?: boolean
+  /** Render nothing but keep all hooks (incl. the mtime poll) alive. Lets the parent keep the
+   * component mounted across the session boundary so IDE-edit hot reload doesn't die. */
+  hidden?: boolean
 }
 
 interface Handles {
@@ -76,6 +80,7 @@ async function readAll(handles: Handles): Promise<ReadResult> {
       stem: handles.stem,
       manifestRaw: manifestFile ? await manifestFile.text() : undefined,
       uiRaw: uiFile ? await uiFile.text() : undefined,
+      origin: 'local-folder',
     },
     mtimes: { py: pyFile.lastModified, manifest: manifestFile?.lastModified, ui: uiFile?.lastModified },
   }
@@ -85,7 +90,7 @@ export function sameMtimes(a: ReadResult['mtimes'], b: ReadResult['mtimes']): bo
   return a.py === b.py && a.manifest === b.manifest && a.ui === b.ui
 }
 
-export function LocalBridge({ onFiles, disabled = false }: LocalBridgeProps) {
+export function LocalBridge({ onFiles, disabled = false, hidden = false }: LocalBridgeProps) {
   const [supported] = useState(() => typeof window.showDirectoryPicker === 'function')
   const [watching, setWatching] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -172,8 +177,12 @@ export function LocalBridge({ onFiles, disabled = false }: LocalBridgeProps) {
     const manifestRaw = manifestFile ? await manifestFile.text() : undefined
     const uiRaw = uiFile ? await uiFile.text() : undefined
     setWatching(stem)
-    onFiles({ py, stem, manifestRaw, uiRaw })
+    onFiles({ py, stem, manifestRaw, uiRaw, origin: 'local-drop' })
   }
+
+  // Render nothing while hidden, but only AFTER every hook above has run — the
+  // poll interval must keep ticking so IDE-edit hot reload survives a load.
+  if (hidden) return null
 
   return (
     <div className="local-bridge">

@@ -58,15 +58,42 @@ renders → `<canvas>` (e-ink) + React `PhoneMock` (phone UI) → phone actions
   → `false` on malformed rules), `syncer.ts` (`data_source` fetch → `{location,
   fetched}` envelope), `dpadGeometry.ts` (swipe→direction), `catalog.ts` (fetch
   index + cartridge files, derive `stem` from the `.py` basename),
-  `deviceContext.ts` (location/secrets/permissions, **localStorage only**),
-  `constants.ts` (`RAW_BASE`, `PYODIDE_URL`, screen geometry).
+  `deviceContext.ts` (location/permissions persisted to localStorage; **secrets
+  are session-only by default** — `loadDeviceContext()` returns `{dc,
+  persistSecrets, migratedSecrets}` and `saveDeviceContext(dc, persistSecrets)`
+  writes the `secrets` key **only** when the user opts in via the SECRETS-tab
+  checkbox; legacy always-saved secrets are scrubbed from storage on first load.
+  **App owns persistence** — panels call their `onChange`/`onPersistChange`, not
+  `saveDeviceContext`), `consoleLog.ts` (`LogEntry {ts, level, text}` +
+  `appendEntry`/`LOG_CAP`, the dev-console model), `pixelGeometry.ts`
+  (`clientToEinkPixel` → e-ink pixel under the cursor, for the grid overlay),
+  `router.ts` (hand-rolled History-API router: `usePath()` + `navigate()`),
+  `constants.ts` (`RAW_BASE`, `PYODIDE_URL`, screen geometry, `WAITLIST_ENDPOINT`).
 - **`src/components/`** — `PhoneMock` renders the cartridge's `ui.json` widget
   tree (all widgets share one local-state map; actions template-resolve then
   bubble via `onAction`); `Dpad`, `EinkCanvas`, `Gallery`, `ContextPanels`,
   `SyncCard`, `ValidationPanel` (runs the real validator in Pyodide),
   `SubmitPanel` (guided PR steps, gated on validation passing), `LocalBridge`
   (File System Access API folder-picker with mtime-polled hot reload; drag-drop
-  fallback). `src/App.tsx` wires them to the single `Emulator`.
+  fallback; tags its `LocalFiles` with `origin` and takes a `hidden` prop so its
+  poll survives while mounted-but-invisible). The dev screen is assembled from
+  `ScreenPane` (e-ink ≤500px at scale 2 + `EinkGrid` pixel-inspector overlay +
+  `ConsolePane`), `PhoneTabs` (UI | SECRETS, both mounted, inactive `hidden`),
+  `SecretsPanel`, `CartridgeInfo`, and `HowToModal` (native `<dialog>`).
+  `src/App.tsx` wires them to the single `Emulator`.
+- **`src/pages/`** — the three top-level routes: `StorePage` (app-store-style
+  homepage: masthead, category chips, featured card, developer strip that hosts
+  `LocalBridge`, then the `Gallery` grid — owns the catalog fetch),
+  `PluginInstallPage` (pwnagotchi host-plugin install guide — prose sourced from
+  the public repo, **never vendored**), `CartridgeOsPage` (coming-soon teaser +
+  waitlist form gated on `WAITLIST_ENDPOINT`). Routing is client-side via
+  `src/lib/router.ts` (History-API). **App keeps `StorePage` mounted (hidden)
+  across routes/session so `LocalBridge`'s folder-watch poll is never torn down**
+  — the fix for the previously-dead hot reload after a local load.
+- **Routing / deploy note:** clean paths (`/plugin`, `/cartridge-os`) rely on the
+  server falling back to `index.html` for unmatched routes. Cloudflare Pages does
+  this **only while there is no `public/404.html`** — do **not** add one, or deep
+  links break in production. Vite dev/preview history-fallback by default.
 
 ## Contract facts that differ from the spec's prose
 

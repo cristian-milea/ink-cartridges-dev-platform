@@ -14,7 +14,8 @@ export async function loadHelloCartridge(page: Page): Promise<Locator> {
 
   // Clicking Load before Pyodide is ready is a silent no-op (App.handleSelect
   // bails while emulatorRef.current is null).
-  await expect(page.locator('.console-pane')).toHaveText('pyodide ready', { timeout: 150_000 })
+  // Console lines now carry a timestamp + level tag, so match on substring.
+  await expect(page.locator('.console-pane')).toContainText('pyodide ready', { timeout: 150_000 })
 
   const card = page.locator('.gallery-card').filter({ has: page.getByText('hello', { exact: true }) })
   await expect(card).toBeVisible({ timeout: 60_000 })

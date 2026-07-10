@@ -1,4 +1,5 @@
 import { PYODIDE_URL, RAW_BASE } from './constants'
+import type { LogLevel } from './consoleLog'
 import shimSource from '../../shim/studio_host.py?raw'
 
 declare global {
@@ -22,7 +23,14 @@ export interface PyodideAPI {
   toPy(obj: unknown): PyProxy
   globals: { get(name: string): PyProxy }
   FS: { mkdirTree(path: string): void; writeFile(path: string, data: Uint8Array | string): void }
+  setStdout(opts: { batched: (line: string) => void }): void
+  setStderr(opts: { batched: (line: string) => void }): void
 }
+
+/** What triggered a repaint — surfaced to the console (interval ticks are verbose). */
+export type RepaintReason = 'load' | 'push' | 'interval'
+/** A tagged console line; App stamps the timestamp. */
+export interface LogEvent { level: LogLevel; text: string }
 
 export interface CartridgeFiles { py: string; stem: string; manifest?: unknown; ui?: unknown }
 export interface CartridgeMeta {
@@ -33,6 +41,17 @@ export interface CartridgeMeta {
 }
 
 const DICT_TO_OBJECT = { dict_converter: Object.fromEntries } as const
+
+/** Compact, non-throwing JSON for a console log line (truncated to 120 chars). */
+function safeStringify(value: unknown): string {
+  let s: string
+  try {
+    s = JSON.stringify(value) ?? String(value)
+  } catch {
+    s = String(value)
+  }
+  return s.length > 120 ? `${s.slice(0, 120)}…` : s
+}
 
 /** Pull the last line ("ValueError: reason") out of a Pyodide traceback string. */
 function pyErrorMessage(err: unknown): string {
@@ -70,17 +89,22 @@ export class Emulator {
   private lastPng: Uint8Array = new Uint8Array()
   private lastPublished: Record<string, unknown> = {}
   private validatorLoaded = false
-  onFrame: (png: Uint8Array, published: Record<string, unknown>) => void = () => {}
-  private onLog: (line: string) => void
+  onFrame: (png: Uint8Array, published: Record<string, unknown>, reason: RepaintReason) => void = () => {}
+  private onLog: (event: LogEvent) => void
 
-  private constructor(onLog: (line: string) => void) {
+  private constructor(onLog: (event: LogEvent) => void) {
     this.onLog = onLog
   }
 
-  static async create(onLog: (line: string) => void): Promise<Emulator> {
+  static async create(onLog: (event: LogEvent) => void): Promise<Emulator> {
     const e = new Emulator(onLog)
     e.py = await window.loadPyodide({ indexURL: PYODIDE_URL })
     await e.py.loadPackage('pillow')
+
+    // Route cartridge print()/tracebacks into the dev console. Installed BEFORE
+    // pyimport('studio_host') so import-time output is captured too.
+    e.py.setStdout({ batched: (line) => onLog({ level: 'app', text: line }) })
+    e.py.setStderr({ batched: (line) => onLog({ level: 'error', text: line }) })
 
     e.py.FS.mkdirTree('/fonts')
     for (const f of ['DejaVuSansMono.ttf', 'DejaVuSansMono-Bold.ttf'])
@@ -120,25 +144,26 @@ export class Emulator {
     this.session = session
     const meta = dictToObject<CartridgeMeta>(metaProxy)
     this.intervalSec = meta.interval_seconds
-    this.repaint()
+    this.repaint('load')
     return meta
   }
 
   async push(payload: unknown): Promise<void> {
     if (!this.session) return
+    this.onLog({ level: 'verbose', text: `push ${safeStringify(payload)}` })
     const pyPayload = this.py.toPy(payload ?? null)
     let changed: unknown
     try {
       changed = this.session.push(pyPayload)
     } catch (err) {
-      this.onLog(pyErrorMessage(err))
+      this.onLog({ level: 'error', text: pyErrorMessage(err) })
       return
     } finally {
       pyPayload.destroy?.()
     }
     const isProxy = changed !== null && typeof changed === 'object' && typeof (changed as PyProxy).destroy === 'function'
     if (isProxy) (changed as PyProxy).destroy()
-    if (isProxy || changed !== false) this.repaint()
+    if (isProxy || changed !== false) this.repaint('push')
   }
 
   published(): Record<string, unknown> {
@@ -149,17 +174,17 @@ export class Emulator {
     return this.lastPng
   }
 
-  private repaint(): void {
+  private repaint(reason: RepaintReason): void {
     if (!this.session) return
     this.lastPng = bytesToUint8Array(this.session.render_png())
     this.lastPublished = dictToObject<Record<string, unknown>>(this.session.published_state())
-    this.onFrame(this.lastPng, this.lastPublished)
+    this.onFrame(this.lastPng, this.lastPublished, reason)
   }
 
   startInterval(): void {
     this.stopInterval()
     if (this.intervalSec)
-      this.timer = window.setInterval(() => this.repaint(), this.intervalSec * 1000)
+      this.timer = window.setInterval(() => this.repaint('interval'), this.intervalSec * 1000)
   }
 
   stopInterval(): void {

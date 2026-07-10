@@ -132,6 +132,18 @@ class Session:
         if not ok:
             raise ValueError(reason)
         self.app = app
+        # Surface render exceptions to stderr, then re-raise so render_frame's
+        # existing try/except still paints the identical ERR frame (pixels
+        # unchanged). Instance-level wrap only; the class method is untouched.
+        _orig_render = app.render
+        def _render_logged(*args, __orig=_orig_render, **kwargs):
+            try:
+                return __orig(*args, **kwargs)
+            except Exception:
+                import traceback
+                print("render error:\n" + traceback.format_exc(), file=sys.stderr)
+                raise
+        app.render = _render_logged
         iv = getattr(app, "interval_seconds", None)
         return {
             "name": app.name, "icon": app.icon,
@@ -145,6 +157,8 @@ class Session:
         try:
             return self.app.on_data(payload)
         except Exception as e:
+            import traceback
+            print(traceback.format_exc(), file=sys.stderr)
             raise ValueError(f"on_data raised: {e}")
 
     def published_state(self):

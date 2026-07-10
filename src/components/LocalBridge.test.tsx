@@ -70,7 +70,7 @@ test('fires onFiles on pick, and again only when a file changes (not on unchange
     fireEvent.click(screen.getByText('Open local folder'))
   })
   expect(fired).toHaveLength(1) // initial pick
-  expect(fired[0]).toMatchObject({ py: 'print(1)', stem: 'hello' })
+  expect(fired[0]).toMatchObject({ py: 'print(1)', stem: 'hello', origin: 'local-folder' })
 
   // Unchanged tick → no new fire.
   await act(async () => {
@@ -85,7 +85,34 @@ test('fires onFiles on pick, and again only when a file changes (not on unchange
     await vi.advanceTimersByTimeAsync(1000)
   })
   expect(fired).toHaveLength(2)
-  expect(fired[1]).toMatchObject({ py: 'print(2)' })
+  expect(fired[1]).toMatchObject({ py: 'print(2)', origin: 'local-folder' })
+})
+
+test('hidden: renders nothing yet the mtime poll keeps firing onFiles (hot reload survives the session boundary)', async () => {
+  const py = new MockFile('hello.py', 'print(1)', 100)
+  installPicker(new MockDir('hello', [py]))
+  const fired: LocalFiles[] = []
+  // Start visible so we can drive the folder pick that arms the poll.
+  const { rerender, container } = render(<LocalBridge onFiles={(f) => fired.push(f)} />)
+
+  await act(async () => {
+    fireEvent.click(screen.getByText('Open local folder'))
+  })
+  expect(fired).toHaveLength(1)
+
+  // Flip to hidden — the fix keeps the component MOUNTED (poll alive) but renders nothing.
+  rerender(<LocalBridge hidden onFiles={(f) => fired.push(f)} />)
+  expect(container.firstChild).toBeNull()
+  expect(screen.queryByText('Open local folder')).toBeNull()
+
+  // An IDE edit lands while hidden → the still-running poll must fire.
+  py.content = 'print(2)'
+  py.lastModified = 200
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(1000)
+  })
+  expect(fired).toHaveLength(2)
+  expect(fired[1]).toMatchObject({ py: 'print(2)', origin: 'local-folder' })
 })
 
 test('unmount clears the poll interval (no fire after unmount)', async () => {

@@ -1,6 +1,6 @@
-import { useState } from 'react'
 import type { ReactNode } from 'react'
 import type { ValidationResult } from './ValidationPanel'
+import { CopyButton } from './CopyButton'
 
 export interface SubmitPanelProps {
   /** Last result from the ValidationPanel above — reused, not re-run. Null before the first check. */
@@ -14,26 +14,6 @@ function Panel({ children }: { children: ReactNode }) {
       <span className="submit-panel-title">Submit to the catalog</span>
       {children}
     </div>
-  )
-}
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false)
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    } catch {
-      // Clipboard API can be unavailable (permissions, insecure context); silently ignore.
-    }
-  }
-
-  return (
-    <button className="ink-btn ink-btn--ghost submit-panel-copy" onClick={() => void copy()}>
-      {copied ? 'Copied!' : 'Copy'}
-    </button>
   )
 }
 
@@ -91,7 +71,7 @@ export function SubmitPanel({ validation, name }: SubmitPanelProps) {
         <li>
           <div className="submit-panel-code-row">
             <p>Clone your fork, add the files, and push a branch:</p>
-            <CopyButton text={cloneScript} />
+            <CopyButton text={cloneScript} className="ink-btn ink-btn--ghost submit-panel-copy" />
           </div>
           <pre className="console-pane">{cloneScript}</pre>
         </li>

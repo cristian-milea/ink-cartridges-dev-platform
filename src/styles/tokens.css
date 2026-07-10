@@ -17,6 +17,10 @@
      Ratios on --yellow: 7.46:1 light, 10.17:1 dark. */
   --ink-on-yellow: #1A1815;
 
+  /* Emboss behind body-text links: white on paper; overridden to a dark grey
+     (lighter than the dark background) in the dark block so it stays subtle. */
+  --link-emboss: rgba(255, 255, 255, 1);
+
   --hairline: 1.5px;   /* Eink.kt HairlineWidth (1.5dp): the app's only border weight. Web uses for secondary visual weight: badges, dividers, inset panels. */
   --rule:     3px;     /* Web-only pixel-bevel: does not exist in Eink.kt. */
   --bevel:    4px;     /* hard shadow offset; never blurred */
@@ -32,5 +36,6 @@
     --ink:   #F2EEE5;   --ink-dim:   #8A8478;
     --red:   #E25E45;   --yellow:    #F0BD3F;
     --red-dim: var(--red);   /* #E25E45 already clears AA: 5.28 / 4.84 */
+    --link-emboss: #3a352d;  /* dark, but lighter than --paper (#131210) */
   }
 }
