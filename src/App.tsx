@@ -213,6 +213,45 @@ function App() {
           </button>
         )}
       </header>
+      {!session && (
+        <section className="studio-hero">
+          <div className="studio-hero-body">
+            <span className="ink-badge">E-ink cartridge preview</span>
+            <h2 className="studio-hero-headline">
+              See your cartridge on the Pi's e-ink screen before you ship it.
+            </h2>
+            <p className="studio-hero-lede">
+              Build an Ink Cartridge in your editor and watch the 250 by 122 e-ink
+              frame render exactly as it will on the device, then drive the phone-side
+              UI. No install, no sideload, no backend.
+            </p>
+            <ul className="studio-hero-points">
+              <li>
+                <span className="studio-hero-point-title">Runs in your browser</span>
+                <span className="studio-hero-point-text">
+                  Your Python runs in a Pyodide sandbox on your own machine. Nothing
+                  executes on a server.
+                </span>
+              </li>
+              <li>
+                <span className="studio-hero-point-title">Pixel identical</span>
+                <span className="studio-hero-point-text">
+                  The same frame composition as the real device host, checked against
+                  it in CI on every change.
+                </span>
+              </li>
+              <li>
+                <span className="studio-hero-point-title">Straight to a PR</span>
+                <span className="studio-hero-point-text">
+                  Validate with the real CI checker, then copy prefilled steps for your
+                  pull request.
+                </span>
+              </li>
+            </ul>
+            <p className="studio-hero-cue">Pick a cartridge below to start, or open a local folder.</p>
+          </div>
+        </section>
+      )}
       <div className="studio-body">
         <div className="studio-left">
           {session ? (

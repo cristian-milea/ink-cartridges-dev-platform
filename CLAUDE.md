@@ -10,7 +10,7 @@ authors of *Ink Cartridge* apps (the cartridges for the pwnagotchi companion app
 the Pi's e-ink screen renders it **and** drives the phone-side UI, all in the
 browser — without sideloading into the store apps.
 
-Deploys to Cloudflare Pages (`ink-cartridges.cristimilea.ro`). Design/plan docs:
+Deploys to Cloudflare Pages (`ink-cartridge-studio.cristimilea.ro`). Design/plan docs:
 `docs/specs/` and `docs/plans/`.
 
 ## The two invariants that shape everything
