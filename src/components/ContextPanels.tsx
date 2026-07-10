@@ -92,14 +92,14 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
             placeholder="Latitude"
             value={dc.location.lat ?? ''}
             onChange={(e) => updateLocation('lat', e.target.value)}
-            className="ink-field context-input"
+            className="ink-field"
           />
           <input
             type="text"
             placeholder="Longitude"
             value={dc.location.lon ?? ''}
             onChange={(e) => updateLocation('lon', e.target.value)}
-            className="ink-field context-input"
+            className="ink-field"
           />
         </div>
         <input
@@ -107,7 +107,7 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
           placeholder="Label"
           value={dc.location.label ?? ''}
           onChange={(e) => updateLocation('label', e.target.value)}
-          className="ink-field context-input context-input-full"
+          className="ink-field context-input-full"
         />
         <div className="context-presets">
           {PRESETS.map((preset) => (
@@ -141,7 +141,7 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
                   placeholder="Enter value..."
                   value={dc.secrets[secret.key] ?? ''}
                   onChange={(e) => updateSecret(secret.key, e.target.value)}
-                  className="ink-field context-input context-input-full"
+                  className="ink-field context-input-full"
                 />
               </div>
             )
