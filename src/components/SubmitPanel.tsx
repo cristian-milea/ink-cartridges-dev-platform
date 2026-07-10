@@ -31,7 +31,7 @@ function CopyButton({ text }: { text: string }) {
   }
 
   return (
-    <button className="submit-panel-copy" onClick={() => void copy()}>
+    <button className="ink-btn ink-btn--ghost submit-panel-copy" onClick={() => void copy()}>
       {copied ? 'Copied!' : 'Copy'}
     </button>
   )

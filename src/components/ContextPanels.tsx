@@ -111,7 +111,11 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
         />
         <div className="context-presets">
           {PRESETS.map((preset) => (
-            <button key={preset.label} onClick={() => applyPreset(preset)} className="context-preset-button">
+            <button
+              key={preset.label}
+              onClick={() => applyPreset(preset)}
+              className="ink-btn ink-btn--ghost context-preset-button"
+            >
               {preset.label}
             </button>
           ))}

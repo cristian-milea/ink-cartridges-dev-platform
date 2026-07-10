@@ -208,7 +208,7 @@ function App() {
       <header className="studio-header">
         <h1>Ink Cartridge Studio</h1>
         {session && (
-          <button onClick={handleBack} className="back-button">
+          <button onClick={handleBack} className="ink-btn ink-btn--ghost">
             ← Back to gallery
           </button>
         )}

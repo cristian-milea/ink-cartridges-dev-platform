@@ -93,10 +93,16 @@ export function Gallery({ onSelect, disabled = false }: GalleryProps) {
                 </div>
                 <p className="gallery-description">{entry.description}</p>
                 <div className="gallery-card-actions">
-                  <button onClick={() => select(entry)} disabled={disabled || loadingName === entry.name}>
+                  <button
+                    onClick={() => select(entry)}
+                    disabled={disabled || loadingName === entry.name}
+                    className="ink-btn"
+                  >
                     {loadingName === entry.name ? 'Loading…' : 'Load'}
                   </button>
-                  <button onClick={() => downloadTemplate(entry)}>Use as template</button>
+                  <button onClick={() => downloadTemplate(entry)} className="ink-btn ink-btn--ghost">
+                    Use as template
+                  </button>
                 </div>
               </div>
             ))}

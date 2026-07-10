@@ -48,7 +48,11 @@ export function ValidationPanel({ emulator, files, trigger, onResult }: Validati
     <div className="ink-panel validation-panel">
       <div className="validation-panel-row">
         <span className="validation-panel-title">CI validator</span>
-        <button onClick={() => void check()} disabled={!emulator || result.status === 'checking'}>
+        <button
+          onClick={() => void check()}
+          disabled={!emulator || result.status === 'checking'}
+          className="ink-btn"
+        >
           {result.status === 'checking' ? 'Checking…' : 'Check cartridge'}
         </button>
       </div>

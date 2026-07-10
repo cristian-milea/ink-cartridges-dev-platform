@@ -269,7 +269,6 @@ body {
 }
 
 .submit-panel-copy {
-  font-size: 12px;
   padding: 2px 8px;
 }
 
@@ -322,16 +321,6 @@ body {
 
 .context-preset-button {
   width: 100%;
-  padding: 4px 8px;
-  font-size: 13px;
-  background: #e0ecfb;
-  border: 1px solid #cfe0f5;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.context-preset-button:hover {
-  background: #cfe0f5;
 }
 
 .context-empty {
