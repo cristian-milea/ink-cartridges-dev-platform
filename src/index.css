@@ -294,13 +294,13 @@ body {
 }
 
 .context-section {
+  padding: 0;
   overflow: hidden;
 }
 
 .context-section-header {
   display: block;
   width: 100%;
-  padding: 10px 12px;
   border: none;
   text-align: left;
   cursor: pointer;

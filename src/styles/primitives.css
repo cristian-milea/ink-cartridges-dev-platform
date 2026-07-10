@@ -16,7 +16,7 @@
 }
 .ink-panel--inset {                            /* nested: no shadow inside a shadow */
   background: var(--paper-dim);
-  border-width: var(--hairline);
+  border: var(--hairline) solid var(--ink);
   box-shadow: none;
 }
 
