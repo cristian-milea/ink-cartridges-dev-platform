@@ -1,0 +1,30 @@
+/* Colour names map 1:1 onto ios/InkCartridge/Theme/InkPalette.swift.
+   Keep them that way — src/lib/palette.test.ts diffs the two files. */
+:root {
+  color-scheme: light dark;
+
+  --paper:     #F2EEE5;   --paper-dim: #E0DBCD;
+  --ink:       #1A1815;   --ink-dim:   #5C564B;
+  --red:       #C23B22;   --yellow:    #D4A017;
+
+  /* Red *text* on a paper surface. Plain --red is 3.85:1 on --paper-dim,
+     below AA. Value is Color.kt's EinkRedDim, which Kotlin never uses. */
+  --red-dim:   #8A2A18;
+
+  --hairline: 1.5px;   /* Eink.kt HairlineWidth — badges and dividers only */
+  --rule:     3px;     /* panel and control borders */
+  --bevel:    4px;     /* hard shadow offset; never blurred */
+
+  --font-body:  'VT323', monospace;
+  --font-stamp: 'PressStart2P', var(--font-body);
+  --font-code:  'DejaVuSansMono', ui-monospace, Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #131210;   --paper-dim: #1E1B17;
+    --ink:   #F2EEE5;   --ink-dim:   #8A8478;
+    --red:   #E25E45;   --yellow:    #F0BD3F;
+    --red-dim: var(--red);   /* #E25E45 already clears AA: 5.28 / 4.84 */
+  }
+}
