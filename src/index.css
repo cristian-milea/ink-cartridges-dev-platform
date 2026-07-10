@@ -87,6 +87,23 @@ body {
 
 .unsupported { font: 12px/1.4 var(--font-code); color: var(--red-dim); }
 
+.dpad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px; height: 160px;
+  margin: 0 auto;
+  border: var(--rule) solid var(--ink);
+  border-radius: 0;
+  box-shadow: var(--bevel) var(--bevel) 0 0 var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: 48px/1 var(--font-body);
+  user-select: none;
+  touch-action: none;
+}
+.dpad:active { transform: translate(var(--bevel), var(--bevel)); box-shadow: none; }
+
 .phone-mock input[type='range'] {
   --track:
     linear-gradient(var(--ink), var(--ink)) 0 / var(--pct, 0%) 100% no-repeat,
