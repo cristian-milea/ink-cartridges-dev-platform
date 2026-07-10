@@ -54,3 +54,14 @@ test('unknown widget type renders placeholder, does not crash', () => {
   render(<PhoneMock ui={{ type: 'hologram' }} published={{}} dc={dc} onAction={noop} />)
   expect(screen.getByText(/unsupported widget/i)).toBeTruthy()
 })
+
+test('slider computes --pct from value/min/max, guarding min === max as 0% not NaN%', () => {
+  const ui = { type: 'column', children: [
+    { type: 'slider', local: 'vol', default: 25, min: 0, max: 100 },
+    { type: 'slider', local: 'flat', default: 5, min: 5, max: 5 },
+  ]}
+  render(<PhoneMock ui={ui} published={{}} dc={dc} onAction={noop} />)
+  const [midRange, degenerate] = screen.getAllByRole('slider') as HTMLInputElement[]
+  expect(midRange.style.getPropertyValue('--pct')).toBe('25%')
+  expect(degenerate.style.getPropertyValue('--pct')).toBe('0%')
+})

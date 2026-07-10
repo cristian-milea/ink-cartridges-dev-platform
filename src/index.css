@@ -137,6 +137,7 @@ body {
   border: 0;
   background: var(--ink);
 }
+.phone-mock input[type='range']:focus-visible { outline: var(--rule) solid var(--red); outline-offset: 2px; }
 
 .phone-mock input[type='checkbox'] {
   appearance: none;
@@ -302,9 +303,9 @@ body {
 }
 
 .validation-panel-title {
-  color: #444;
-  font-size: 13px;
-  font-weight: 600;
+  color: var(--ink);
+  font: 11px/1.6 var(--font-stamp);
+  text-transform: uppercase;
 }
 
 .validation-panel-errors {
@@ -320,13 +321,13 @@ body {
 }
 
 .submit-panel-title {
-  color: #444;
-  font-size: 13px;
-  font-weight: 600;
+  color: var(--ink);
+  font: 11px/1.6 var(--font-stamp);
+  text-transform: uppercase;
 }
 
 .submit-panel-hint {
-  color: #666;
+  color: var(--ink-dim);
   font-size: 12px;
   margin: 6px 0 0;
 }
