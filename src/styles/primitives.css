@@ -64,7 +64,7 @@
 }
 .ink-badge--ink    { background: var(--ink);    color: var(--paper); }   /* success = absence of red */
 .ink-badge--red    { background: var(--red);    color: var(--paper); }
-.ink-badge--yellow { background: var(--yellow); color: var(--ink);   }
+.ink-badge--yellow { background: var(--yellow); color: var(--ink-on-yellow); }
 
 .ink-section-header {                          /* = EinkSectionHeader, the punchcard strip */
   font: 11px/1.6 var(--font-stamp);

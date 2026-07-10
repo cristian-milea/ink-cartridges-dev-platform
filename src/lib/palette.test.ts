@@ -37,6 +37,16 @@ describe('token layer', () => {
     }
     expect(light['--red-dim']).toMatch(/^#[0-9A-F]{6}$/)
   })
+
+  it('pins --ink-on-yellow to :root only — it must never invert with the dark scheme', () => {
+    // --yellow stays a warm hue in both schemes, so its foreground can't ride
+    // --ink (which inverts). If a future edit adds --ink-on-yellow to the dark
+    // @media block, this must fail: that would silently reintroduce the
+    // near-white-on-yellow 1.50:1 contrast failure this token exists to prevent.
+    const { light, dark } = readTokens()
+    expect(light['--ink-on-yellow'], '--ink-on-yellow missing from :root').toMatch(/^#[0-9A-F]{6}$/)
+    expect(dark['--ink-on-yellow'], '--ink-on-yellow must not be redeclared in the dark @media block').toBeUndefined()
+  })
 })
 
 // The app repo is a sibling checkout, never vendored — same contract as

@@ -11,6 +11,12 @@
      below AA. Value is Color.kt's EinkRedDim, which Kotlin never uses. */
   --red-dim:   #8A2A18;
 
+  /* Text that sits on --yellow. --yellow does not invert between schemes, so
+     its foreground must not either: plain --ink would flip to near-white in
+     dark mode and land at 1.50:1 on the yellow fill. Same value as light --ink.
+     Ratios on --yellow: 7.46:1 light, 10.17:1 dark. */
+  --ink-on-yellow: #1A1815;
+
   --hairline: 1.5px;   /* Eink.kt HairlineWidth (1.5dp): the app's only border weight. Web uses for secondary visual weight: badges, dividers, inset panels. */
   --rule:     3px;     /* Web-only pixel-bevel: does not exist in Eink.kt. */
   --bevel:    4px;     /* hard shadow offset; never blurred */

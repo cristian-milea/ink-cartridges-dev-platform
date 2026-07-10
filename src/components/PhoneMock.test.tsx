@@ -65,3 +65,14 @@ test('slider computes --pct from value/min/max, guarding min === max as 0% not N
   expect(midRange.style.getPropertyValue('--pct')).toBe('25%')
   expect(degenerate.style.getPropertyValue('--pct')).toBe('0%')
 })
+
+test('slider clamps --pct to [0, 100] when default is outside min/max', () => {
+  const ui = { type: 'column', children: [
+    { type: 'slider', local: 'below', default: -50, min: 0, max: 100 },
+    { type: 'slider', local: 'above', default: 150, min: 0, max: 100 },
+  ]}
+  render(<PhoneMock ui={ui} published={{}} dc={dc} onAction={noop} />)
+  const [belowMin, aboveMax] = screen.getAllByRole('slider') as HTMLInputElement[]
+  expect(belowMin.style.getPropertyValue('--pct')).toBe('0%')
+  expect(aboveMax.style.getPropertyValue('--pct')).toBe('100%')
+})

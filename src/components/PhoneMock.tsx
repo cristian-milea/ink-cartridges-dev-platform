@@ -243,7 +243,7 @@ export function PhoneMock({ ui, published, dc, onAction }: PhoneMockProps) {
           : (num(node, 'default') ?? num(node, 'min') ?? 0)
         const min = num(node, 'min') ?? 0
         const max = num(node, 'max') ?? 100
-        const pct = max > min ? ((value - min) / (max - min)) * 100 : 0
+        const pct = max > min ? Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100)) : 0
         // CSSProperties has no index signature for custom properties, hence the cast.
         const trackStyle = { '--pct': `${pct}%` } as React.CSSProperties
         const release = (e: React.SyntheticEvent<HTMLInputElement>) => {
