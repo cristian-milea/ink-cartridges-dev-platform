@@ -11,8 +11,8 @@
      below AA. Value is Color.kt's EinkRedDim, which Kotlin never uses. */
   --red-dim:   #8A2A18;
 
-  --hairline: 1.5px;   /* Eink.kt HairlineWidth — badges and dividers only */
-  --rule:     3px;     /* panel and control borders */
+  --hairline: 1.5px;   /* Eink.kt HairlineWidth (1.5dp): the app's only border weight. Web uses for secondary visual weight: badges, dividers, inset panels. */
+  --rule:     3px;     /* Web-only pixel-bevel: does not exist in Eink.kt. */
   --bevel:    4px;     /* hard shadow offset; never blurred */
 
   --font-body:  'VT323', monospace;

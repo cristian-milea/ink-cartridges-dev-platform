@@ -51,7 +51,7 @@
 .ink-field::placeholder  { color: var(--ink-dim); text-transform: uppercase; }
 .ink-field:focus-visible { outline: var(--rule) solid var(--red); outline-offset: 0; }
 
-.ink-badge {                                   /* = EinkBadge — hairline, not rule */
+.ink-badge {                                   /* = EinkBadge: secondary border weight for visual hierarchy */
   display: inline-block;
   font: 9px/1 var(--font-stamp);
   text-transform: uppercase;
