@@ -111,6 +111,10 @@ body {
   gap: 8px;
 }
 
+.gallery-card-header .ink-badge {
+  margin-left: auto;
+}
+
 .gallery-icon {
   display: inline-flex;
   align-items: center;
@@ -142,18 +146,6 @@ body {
 .gallery-card-actions {
   display: flex;
   gap: 8px;
-}
-
-.badge {
-  margin-left: auto;
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 10px;
-}
-
-.badge-secrets {
-  background: #fde68a;
-  color: #7c4a03;
 }
 
 .status {
@@ -233,12 +225,6 @@ body {
   color: #444;
   font-size: 13px;
   font-weight: 600;
-}
-
-.validation-panel-valid {
-  color: #15803d;
-  font-size: 13px;
-  margin: 6px 0 0;
 }
 
 .validation-panel-errors {
@@ -323,13 +309,6 @@ body {
   gap: 8px;
 }
 
-.context-input {
-  padding: 4px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 13px;
-}
-
 .context-input-full {
   width: 100%;
   box-sizing: border-box;
@@ -377,12 +356,6 @@ body {
   font-size: 13px;
   font-weight: 600;
   color: var(--ink);
-}
-
-.context-needed-badge {
-  margin-left: 0;
-  background: #fecaca;
-  color: #b91c1c;
 }
 
 .context-secret-description {

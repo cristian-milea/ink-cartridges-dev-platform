@@ -92,14 +92,14 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
             placeholder="Latitude"
             value={dc.location.lat ?? ''}
             onChange={(e) => updateLocation('lat', e.target.value)}
-            className="context-input"
+            className="ink-field context-input"
           />
           <input
             type="text"
             placeholder="Longitude"
             value={dc.location.lon ?? ''}
             onChange={(e) => updateLocation('lon', e.target.value)}
-            className="context-input"
+            className="ink-field context-input"
           />
         </div>
         <input
@@ -107,7 +107,7 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
           placeholder="Label"
           value={dc.location.label ?? ''}
           onChange={(e) => updateLocation('label', e.target.value)}
-          className="context-input context-input-full"
+          className="ink-field context-input context-input-full"
         />
         <div className="context-presets">
           {PRESETS.map((preset) => (
@@ -129,7 +129,7 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
               <div key={secret.key} className="context-secret-row">
                 <div className="context-secret-label-row">
                   <label className="context-secret-label">{secret.label}</label>
-                  {isRequired && !isSet && <span className="badge context-needed-badge">needed</span>}
+                  {isRequired && !isSet && <span className="ink-badge ink-badge--red">needed</span>}
                 </div>
                 {secret.description && <p className="context-secret-description">{secret.description}</p>}
                 <input
@@ -137,7 +137,7 @@ export function ContextPanels({ dc, onChange, manifest }: ContextPanelsProps) {
                   placeholder="Enter value..."
                   value={dc.secrets[secret.key] ?? ''}
                   onChange={(e) => updateSecret(secret.key, e.target.value)}
-                  className="context-input context-input-full"
+                  className="ink-field context-input context-input-full"
                 />
               </div>
             )

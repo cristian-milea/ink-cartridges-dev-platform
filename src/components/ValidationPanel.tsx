@@ -52,7 +52,7 @@ export function ValidationPanel({ emulator, files, trigger, onResult }: Validati
           {result.status === 'checking' ? 'Checking…' : 'Check cartridge'}
         </button>
       </div>
-      {result.status === 'valid' && <p className="validation-panel-valid">✓ valid</p>}
+      {result.status === 'valid' && <p><span className="ink-badge ink-badge--ink">valid</span></p>}
       {result.status === 'invalid' && (
         <ul className="validation-panel-errors">
           {result.errors.map((e, i) => (

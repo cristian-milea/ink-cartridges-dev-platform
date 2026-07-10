@@ -79,7 +79,7 @@ export function SubmitPanel({ validation, name }: SubmitPanelProps) {
 
   return (
     <Panel>
-      <p className="validation-panel-valid">✓ validated — ready to submit</p>
+      <p><span className="ink-badge ink-badge--ink">validated</span> ready to submit</p>
 
       <ol className="submit-panel-steps">
         <li>

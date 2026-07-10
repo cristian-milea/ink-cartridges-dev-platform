@@ -89,7 +89,7 @@ export function Gallery({ onSelect, disabled = false }: GalleryProps) {
                     <div className="gallery-name">{entry.name}</div>
                     <div className="gallery-meta">v{entry.version} · {entry.author}</div>
                   </div>
-                  {needsSecrets(entry) && <span className="badge badge-secrets">needs secrets</span>}
+                  {needsSecrets(entry) && <span className="ink-badge ink-badge--yellow">needs secrets</span>}
                 </div>
                 <p className="gallery-description">{entry.description}</p>
                 <div className="gallery-card-actions">
