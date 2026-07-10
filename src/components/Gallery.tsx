@@ -75,7 +75,7 @@ export function Gallery({ onSelect, disabled = false }: GalleryProps) {
   }
 
   return (
-    <div className="gallery">
+    <div>
       {disabled && <p className="status">Starting runtime…</p>}
       {[...byCategory.entries()].map(([category, apps]) => (
         <section key={category} className="gallery-category">
@@ -84,7 +84,10 @@ export function Gallery({ onSelect, disabled = false }: GalleryProps) {
             {apps.map((entry) => (
               <div key={entry.name} className="ink-panel gallery-card">
                 <div className="gallery-card-header">
-                  <span className="gallery-icon">{entry.icon}</span>
+                  <span className="gallery-icon">
+                    <img src="/img/game_cartridge.png" alt="" />
+                    <span className="gallery-icon-monogram">{entry.icon.slice(0, 2).toUpperCase()}</span>
+                  </span>
                   <div>
                     <div className="gallery-name">{entry.name}</div>
                     <div className="gallery-meta">v{entry.version} · {entry.author}</div>

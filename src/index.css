@@ -116,16 +116,24 @@ body {
 }
 
 .gallery-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  display: inline-block;
   width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #333;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
+  flex: none;
+}
+.gallery-icon img {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+.gallery-icon-monogram {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font: 9px/1 var(--font-stamp);
+  color: var(--yellow);
 }
 
 .gallery-name {
