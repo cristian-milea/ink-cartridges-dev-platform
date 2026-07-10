@@ -45,11 +45,11 @@ function Section({
   children: ReactNode
 }) {
   return (
-    <div className="context-section">
-      <button onClick={onToggle} className="context-section-header">
+    <div className="ink-panel context-section">
+      <button onClick={onToggle} className="ink-section-header context-section-header">
         {title} {collapsed ? '▶' : '▼'}
       </button>
-      {!collapsed && <div className="context-section-body">{children}</div>}
+      {!collapsed && <div className="ink-panel--inset context-section-body">{children}</div>}
     </div>
   )
 }

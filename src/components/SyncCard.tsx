@@ -36,7 +36,7 @@ export interface SyncCardProps {
 export function SyncCard({ ds, ctx, lastSync, onSync, error }: SyncCardProps) {
   const unmet = checkNeeds(ds, ctx)
   return (
-    <div className="sync-card">
+    <div className="ink-panel sync-card">
       <div className="sync-card-row">
         <span className="sync-card-status">
           Last synced: {lastSync === null ? 'never' : timeAgo(lastSync)}

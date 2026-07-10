@@ -100,9 +100,6 @@ body {
 }
 
 .gallery-card {
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -194,9 +191,6 @@ body {
 }
 
 .sync-card {
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 10px 12px;
   margin-bottom: 12px;
 }
 
@@ -225,9 +219,6 @@ body {
 }
 
 .validation-panel {
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 10px 12px;
   margin-bottom: 12px;
 }
 
@@ -259,9 +250,6 @@ body {
 }
 
 .submit-panel {
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 10px 12px;
   margin-bottom: 12px;
 }
 
@@ -306,8 +294,6 @@ body {
 }
 
 .context-section {
-  border: 1px solid #ddd;
-  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -316,16 +302,12 @@ body {
   width: 100%;
   padding: 10px 12px;
   border: none;
-  background: none;
   text-align: left;
-  font-size: 13px;
-  font-weight: 600;
-  color: #444;
   cursor: pointer;
 }
 
 .context-section-header:hover {
-  background: var(--paper-dim);
+  background: var(--ink-dim);
 }
 
 .context-section-body {
@@ -333,8 +315,6 @@ body {
   flex-direction: column;
   gap: 8px;
   padding: 10px 12px;
-  border-top: 1px solid #eee;
-  background: #fafafa;
 }
 
 .context-field-row {

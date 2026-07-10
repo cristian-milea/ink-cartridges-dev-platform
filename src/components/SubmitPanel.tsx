@@ -10,7 +10,7 @@ export interface SubmitPanelProps {
 
 function Panel({ children }: { children: ReactNode }) {
   return (
-    <div className="submit-panel">
+    <div className="ink-panel submit-panel">
       <span className="submit-panel-title">Submit to the catalog</span>
       {children}
     </div>

@@ -82,7 +82,7 @@ export function Gallery({ onSelect, disabled = false }: GalleryProps) {
           <h2>{category}</h2>
           <div className="gallery-grid">
             {apps.map((entry) => (
-              <div key={entry.name} className="gallery-card">
+              <div key={entry.name} className="ink-panel gallery-card">
                 <div className="gallery-card-header">
                   <span className="gallery-icon">{entry.icon}</span>
                   <div>
