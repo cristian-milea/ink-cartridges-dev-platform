@@ -11,7 +11,7 @@ into the store app.
 ## Architecture
 
 The Studio is a **100% static site**, deployed to
-[ink-cartridge-studio.cristimilea.ro](https://ink-cartridge-studio.cristimilea.ro) via
+[ink-cartridge.cristimilea.ro](https://ink-cartridge.cristimilea.ro) via
 Cloudflare Pages. There is no backend, and this is deliberate: it's the
 security model. Developer Python never runs on any server — it runs in
 **Pyodide** (CPython compiled to WASM, plus Pillow) inside the visitor's own

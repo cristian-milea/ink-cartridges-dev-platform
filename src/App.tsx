@@ -16,7 +16,7 @@ import { PluginInstallPage } from './pages/PluginInstallPage'
 import { CartridgeOsPage } from './pages/CartridgeOsPage'
 import { loadDeviceContext, saveDeviceContext, toTemplateCtx, type DeviceContext } from './lib/deviceContext'
 import { appendEntry, type LogEntry } from './lib/consoleLog'
-import { usePath } from './lib/router'
+import { usePath, navigate } from './lib/router'
 import { runSync, type DataSource } from './lib/syncer'
 import type { CatalogEntry } from './lib/catalog'
 
@@ -109,6 +109,17 @@ function App() {
     saveDeviceContext(dc, persist)
   }
 
+  /**
+   * The dev screen ("studio") lives at /studio; jump there when a session
+   * starts. Guarded to a store route so a background hot-reload (which also
+   * calls this via handleLocalFiles) never yanks the user off /plugin or
+   * /cartridge-os. Reads the live pathname to dodge stale closures.
+   */
+  function openStudio() {
+    const p = window.location.pathname
+    if (p !== '/studio' && p !== '/plugin' && p !== '/cartridge-os') navigate('/studio')
+  }
+
   async function handleSelect(
     files: CartridgeFiles & { manifest?: unknown; ui?: unknown; manifestRaw: string; uiRaw?: string },
     entry: CatalogEntry
@@ -134,6 +145,7 @@ function App() {
       setSyncError(null)
       setValidationResult(null)
       emulator.startInterval()
+      openStudio()
       appendLog({ level: 'sys', text: `loaded ${meta.name}` })
     } catch (err) {
       appendLog({ level: 'error', text: String(err) })
@@ -178,6 +190,7 @@ function App() {
       setLastSync(getLastSync(meta.name))
       setSyncError(null)
       emulator.startInterval()
+      openStudio()
       appendLog({ level: 'sys', text: `reloaded ${meta.name}` })
       setValidationTrigger((t) => (t ?? 0) + 1)
     } catch (err) {
@@ -195,6 +208,7 @@ function App() {
     setValidationResult(null)
     setHowToOpen(false)
     setBridgeKey((k) => k + 1)
+    navigate('/')
   }
 
   async function handleSync() {
@@ -236,20 +250,22 @@ function App() {
 
   const isPlugin = path === '/plugin'
   const isCartridgeOs = path === '/cartridge-os'
-  const isStoreRoute = !isPlugin && !isCartridgeOs // '/' and any unknown path
-  const showStore = isStoreRoute && !session
-  const showDev = isStoreRoute && !!session
+  const isStudio = path === '/studio'
+  const isStore = !isPlugin && !isCartridgeOs && !isStudio // '/' and any unknown path
+  const showDev = isStudio && !!session
+  const showEmptyStudio = isStudio && !session
 
   return (
     <div className={`studio-shell${showDev ? ' studio-shell--app' : ''}`}>
       <header className="studio-header">
         <h1>
-          <Link to="/">Ink Cartridge Studio</Link>
+          <Link to="/">Ink Cartridge</Link>
         </h1>
         <nav className="studio-nav">
           <Link to="/" onClick={() => session && handleBack()}>
             Store
           </Link>
+          <Link to="/studio">Studio</Link>
           <Link to="/plugin">Pwnagotchi plugin</Link>
           <Link to="/cartridge-os" className="studio-nav-os">
             Cartridge OS
@@ -259,7 +275,7 @@ function App() {
       </header>
 
       {/* Kept mounted (hidden) across routes/session so LocalBridge's folder-watch poll survives. */}
-      <div className="store-wrap" hidden={!showStore}>
+      <div className="store-wrap" hidden={!isStore}>
         <StorePage
           onSelect={handleSelect}
           onLocalFiles={handleLocalFiles}
@@ -272,6 +288,22 @@ function App() {
 
       {isPlugin && <PluginInstallPage />}
       {isCartridgeOs && <CartridgeOsPage />}
+
+      {showEmptyStudio && (
+        <div className="studio-empty">
+          <section className="ink-panel studio-empty-card">
+            <span className="ink-section-header">Studio</span>
+            <h2>No cartridge loaded</h2>
+            <p>
+              Load a published cartridge from the store, or open a local folder to preview your own —
+              the studio renders the real 250×122 e-ink frame and drives the phone-side UI.
+            </p>
+            <Link to="/" className="ink-btn studio-empty-cta">
+              Browse cartridges
+            </Link>
+          </section>
+        </div>
+      )}
 
       {showDev && session && (
         <div className="studio-body studio-body--session">
@@ -324,6 +356,19 @@ function App() {
             <ContextPanels dc={dc} onChange={updateDc} />
           </div>
         </div>
+      )}
+
+      {!showDev && (
+        <footer className="studio-footer">
+          <span>Ink Cartridge is free and open source.</span>
+          <a
+            href="https://github.com/cristian-milea/ink-cartridges-dev-platform"
+            target="_blank"
+            rel="noreferrer"
+          >
+            MIT · GitHub ↗
+          </a>
+        </footer>
       )}
 
       <HowToModal open={howToOpen} onClose={() => setHowToOpen(false)} />

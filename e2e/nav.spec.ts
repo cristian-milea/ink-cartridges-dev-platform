@@ -24,3 +24,31 @@ test('header nav routes to the plugin and Cartridge OS pages and survives refres
   // nav's "Pwnagotchi plugin" link is separate chrome, so scope to .page).
   await expect(page.locator('.page')).not.toContainText(/pwnagotchi/i)
 })
+
+test('Studio nav opens /studio, shows the empty state, and deep-links on refresh', async ({ page }) => {
+  await page.goto('/')
+
+  await page.locator('.studio-nav').getByRole('link', { name: 'Studio' }).click()
+  await expect(page).toHaveURL(/\/studio$/)
+  // No cartridge loaded (no Pyodide needed) → the empty-state prompt.
+  await expect(page.getByRole('heading', { name: /no cartridge loaded/i })).toBeVisible()
+
+  // Deep link survives a hard refresh, same index.html fallback as /plugin.
+  await page.reload()
+  await expect(page.getByRole('heading', { name: /no cartridge loaded/i })).toBeVisible()
+
+  // "Browse cartridges" returns to the store.
+  await page.locator('.studio-empty-card').getByRole('link', { name: /browse cartridges/i }).click()
+  await expect(page).toHaveURL(/\/$/)
+  await expect(page.getByRole('heading', { name: /the cartridge store, in your browser/i })).toBeVisible()
+})
+
+test('footer carries the open-source note and GitHub link', async ({ page }) => {
+  await page.goto('/')
+  const footer = page.locator('.studio-footer')
+  await expect(footer).toContainText(/open source/i)
+  await expect(footer.getByRole('link', { name: /github/i })).toHaveAttribute(
+    'href',
+    'https://github.com/cristian-milea/ink-cartridges-dev-platform'
+  )
+})

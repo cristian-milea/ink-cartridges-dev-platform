@@ -104,6 +104,51 @@ body {
   min-height: 0;
 }
 
+/* Empty /studio: shown when the route is open but no cartridge is loaded. */
+.studio-empty {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px;
+}
+.studio-empty-card {
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+.studio-empty-card h2 {
+  margin: 0;
+  font: 20px/1.2 var(--font-body);
+}
+.studio-empty-card p {
+  margin: 0;
+}
+.studio-empty-cta {
+  display: inline-flex;
+  text-decoration: none;
+  margin-top: 6px;
+}
+
+/* Global footer — carries the open-source note. Hidden on the dev screen. */
+.studio-footer {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 12px 16px;
+  border-top: var(--hairline) solid var(--ink);
+  font: 9px/1.6 var(--font-stamp);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.studio-footer a {
+  color: var(--ink);
+}
+
 /* Three-column dev screen: e-ink+console | phone/secrets | info. */
 .studio-body--session {
   display: flex;

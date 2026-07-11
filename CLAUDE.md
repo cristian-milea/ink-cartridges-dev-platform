@@ -10,7 +10,7 @@ authors of *Ink Cartridge* apps (the cartridges for the pwnagotchi companion app
 the Pi's e-ink screen renders it **and** drives the phone-side UI, all in the
 browser — without sideloading into the store apps.
 
-Deploys to Cloudflare Pages (`ink-cartridge-studio.cristimilea.ro`). Design/plan docs:
+Deploys to Cloudflare Pages (`ink-cartridge.cristimilea.ro`). Design/plan docs:
 `docs/specs/` and `docs/plans/`.
 
 ## The two invariants that shape everything
@@ -81,16 +81,27 @@ renders → `<canvas>` (e-ink) + React `PhoneMock` (phone UI) → phone actions
   `ConsolePane`), `PhoneTabs` (UI | SECRETS, both mounted, inactive `hidden`),
   `SecretsPanel`, `CartridgeInfo`, and `HowToModal` (native `<dialog>`).
   `src/App.tsx` wires them to the single `Emulator`.
-- **`src/pages/`** — the three top-level routes: `StorePage` (app-store-style
+- **`src/pages/`** — the top-level routes: `StorePage` (`/`, app-store-style
   homepage: masthead, category chips, featured card, developer strip that hosts
   `LocalBridge`, then the `Gallery` grid — owns the catalog fetch),
-  `PluginInstallPage` (pwnagotchi host-plugin install guide — prose sourced from
-  the public repo, **never vendored**), `CartridgeOsPage` (coming-soon teaser +
-  waitlist form gated on `WAITLIST_ENDPOINT`). Routing is client-side via
-  `src/lib/router.ts` (History-API). **App keeps `StorePage` mounted (hidden)
-  across routes/session so `LocalBridge`'s folder-watch poll is never torn down**
-  — the fix for the previously-dead hot reload after a local load.
-- **Routing / deploy note:** clean paths (`/plugin`, `/cartridge-os`) rely on the
+  `PluginInstallPage` (`/plugin`, pwnagotchi host-plugin install guide — prose
+  sourced from the public repo, **never vendored**), `CartridgeOsPage`
+  (`/cartridge-os`, coming-soon teaser + waitlist form gated on
+  `WAITLIST_ENDPOINT`). Routing is client-side via `src/lib/router.ts`
+  (History-API). **App keeps `StorePage` mounted (hidden) across routes/session
+  so `LocalBridge`'s folder-watch poll is never torn down** — the fix for the
+  previously-dead hot reload after a local load.
+- **The dev screen ("studio") lives at its own `/studio` route** (nav item
+  "Studio"), assembled inline in `App.tsx` — it is *not* a `pages/` component.
+  Loading a cartridge (gallery/featured `handleSelect` or local-folder
+  `handleLocalFiles`) calls `openStudio()` → `navigate('/studio')`; the guard
+  in `openStudio` only redirects from a store route, so a background hot-reload
+  never yanks the user off `/plugin`/`/cartridge-os`. `showDev = isStudio &&
+  session`; `/studio` with no session renders the `.studio-empty` prompt.
+  "Back"/clicking "Store" runs `handleBack()` → `navigate('/')`. A global
+  `.studio-footer` (open-source/MIT + GitHub link) shows on every route except
+  the full-height dev screen (`!showDev`).
+- **Routing / deploy note:** clean paths (`/studio`, `/plugin`, `/cartridge-os`) rely on the
   server falling back to `index.html` for unmatched routes. Cloudflare Pages does
   this **only while there is no `public/404.html`** — do **not** add one, or deep
   links break in production. Vite dev/preview history-fallback by default.
